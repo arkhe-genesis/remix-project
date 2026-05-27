@@ -67,8 +67,8 @@ class ArkheHybridLoss(nn.Module):
         self,
         predictions: Dict[str, torch.Tensor],
         targets: Dict[str, torch.Tensor],
-        causal_model=None,
         model: Optional[nn.Module] = None,
+        causal_model=None,
     ) -> Dict[str, torch.Tensor]:
         """
         Computa loss híbrida.

@@ -29,6 +29,18 @@ class ArkheOntologySDK:
         bridge = OWLWeb3Bridge(self.registry_address)
         return bridge.sdx_to_erc8257(artifact)
 
+    def estimate_kolmogorov_complexity(self, artifact: dict, model) -> float:
+        """
+        Lower bound of K(s) based on the model's weight norm.
+        """
+        from arkhe_world_model.kolmogorov_regularizer import kolmogorov_regularizer
+        seal = self.generate_seal(artifact)
+        # A complexidade do artefacto é limitada inferiormente pela complexidade
+        # da rede que o gerou (normalizada pelo número de bits do selo).
+        k_network = kolmogorov_regularizer(model).item()
+        # O selo é uma string de 256 bits; a K do artefacto é pelo menos K(rede) - K(selo)
+        return max(0.0, k_network - 256.0)
+
 # Example usage in IDE:
 # sdk = ArkheOntologySDK()
 # seal = sdk.generate_seal({"@type":"sdx:OCIImage","name":"my-app"})

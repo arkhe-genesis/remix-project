@@ -24,7 +24,8 @@ policy = ArkheRLPolicy(env, algorithm="ppo")   # Stage 7: política
 
 # Losses
 loss_fn = ArkheHybridLoss(vocab_size=32000, state_dim=256,
-                          lambda_ce=1.0, lambda_mse=0.5, lambda_causal=0.3)
+                          lambda_ce=1.0, lambda_mse=0.5, lambda_causal=0.3,
+                          lambda_k=1e-5)
 physics_loss = PhysicsConsistencyLoss()
 contrastive_loss = ContrastiveWorldLoss()
 
@@ -73,7 +74,7 @@ for epoch in range(5):  # placeholder: 5 épocas
         tokens_true = torch.randint(0, 32000, (1, 10))
 
         # 4. Predição de estado (cabeça linear simples)
-        state_pred = torch.randn(1, 256)      # stub
+        state_pred = torch.randn(1, 256, requires_grad=True)      # stub
 
         # 5. Loss híbrida
         predictions = {
@@ -86,7 +87,12 @@ for epoch in range(5):  # placeholder: 5 épocas
             "state_true": world_emb,
             "causal_true": world_emb
         }
-        loss_dict = loss_fn(predictions, targets, causal_model=causal.scm)
+
+        # O teorema de Kolmogorov é medido no modelo LLM (stub), ou
+        # a rede neural total em laço. Vamos usar a política (policy.policy)
+        # como representante para calcular R_K. Em produção,
+        # usaria-se a rede inteira.
+        loss_dict = loss_fn(predictions, targets, causal_model=causal.scm, model=policy.policy)
         total_loss = loss_dict["total"]
 
         # 6. Atualização conjunta

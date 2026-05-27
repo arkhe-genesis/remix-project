@@ -1,130 +1,268 @@
 #!/usr/bin/env python3
-# train.py — Orquestração do treino do World‑Model (Substrato 892)
-# Integra: llm_engine, brax_simulator, causal_reasoning, losses, rl_policy
-# Validação contra benchmark IntPhys (proxy)
+# ╔══════════════════════════════════════════════════════════════════╗
+# ║  ARKHE WORLD MODEL — Script de Treinamento                      ║
+# ║  Substrato 890 — Training Loop                                  ║
+# ║  + Substrato 898 — Kolmogorov Regularizer (Solomonoff Prior)    ║
+# ╚══════════════════════════════════════════════════════════════════╝
 
-import torch
+"""
+Script de treinamento para o World Model Embryo.
+
+Uso:
+    python train.py --maturity embryo --epochs 100 --batch_size 32
+    python train.py --maturity infant --epochs 200 --scene pendulum --use_kolmogorov
+    python train.py --maturity adult --epochs 500 --optimizer kolmogorov
+"""
+
+import argparse
+import os
+import sys
+import json
+from pathlib import Path
+
 import numpy as np
-from arkhe_world_model.llm_engine import ArkheLLMEngine
-from arkhe_world_model.brax_simulator import ArkheBraxSimulator
-from arkhe_world_model.causal_reasoning import ArkheCausalReasoner
-from arkhe_world_model.losses import ArkheHybridLoss, PhysicsConsistencyLoss, ContrastiveWorldLoss
-from arkhe_world_model.rl_policy import WorldModelEnv, ArkheRLPolicy
+import torch
+import torch.nn as nn
+from torch.utils.data import Dataset, DataLoader
 
-# -------------------------------------------------------------------
-# Inicialização dos módulos
-# -------------------------------------------------------------------
-llm = ArkheLLMEngine("models/arkhe-os.gguf", n_gpu_layers=35)
-sim = ArkheBraxSimulator(scene="intphys_scene")
-causal = ArkheCausalReasoner(n_vars=10)        # Stage 5: descoberta causal
+sys.path.insert(0, str(Path(__file__).parent))
 
-# Ambiente interno para RL
-env = WorldModelEnv(simulator=sim, llm_engine=llm, max_steps=500)
-policy = ArkheRLPolicy(env, algorithm="ppo")   # Stage 7: política
+from arkhe_world_model import WorldModelEmbryo, WorldModelConfig, MaturityLevel
+from arkhe_world_model.losses import ArkheHybridLoss
+from arkhe_world_model.kolmogorov_regularizer import KolmogorovWeightDecay, print_kolmogorov_report
 
-# Losses
-loss_fn = ArkheHybridLoss(vocab_size=32000, state_dim=256,
-                          lambda_ce=1.0, lambda_mse=0.5, lambda_causal=0.3,
-                          lambda_k=1e-5)
-physics_loss = PhysicsConsistencyLoss()
-contrastive_loss = ContrastiveWorldLoss()
 
-# -------------------------------------------------------------------
-# Dados de treino (proxy: descrições de cenas)
-# Em produção, carregar dataset IntPhys/CLEVRER-Hybrid
-# -------------------------------------------------------------------
-train_scenes = [
-    "A red ball rolls off a table and falls to the ground.",
-    "Two blocks collide and bounce apart.",
-    "A pendulum swings and hits a stationary target.",
-    # ... mais descrições
-]
-val_scenes = [
-    "A ball is thrown upward and falls back.",
-    "A stack of blocks collapses when the bottom one is pulled.",
-]
+class SyntheticWorldModelDataset(Dataset):
+    def __init__(self, n_samples=1000, seq_len=128, state_dim=256, n_vars=10):
+        self.n_samples = n_samples
+        self.seq_len = seq_len
+        self.state_dim = state_dim
+        self.n_vars = n_vars
+        self.vocab_size = 32000
+        np.random.seed(42)
+        self.text_tokens = np.random.randint(0, self.vocab_size, (n_samples, seq_len))
+        self.physics_states = np.random.randn(n_samples, state_dim).astype(np.float32)
+        self.causal_obs = np.random.randn(n_samples, n_vars).astype(np.float32)
+        self.physics_states = np.tanh(self.physics_states) * 0.5 + 0.5
+        self.causal_obs = np.tanh(self.causal_obs) * 0.5 + 0.5
 
-# -------------------------------------------------------------------
-# Loop de treino conjunto
-# -------------------------------------------------------------------
-optimizer = torch.optim.Adam(
-    list(llm.parameters()) +                  # (stub: LLM não tem parâmetros acessíveis)
-    list(causal.scm.parameters()) +           # SCM
-    list(policy.policy.parameters()),         # PPO policy
-    lr=3e-4
-)
+    def __len__(self):
+        return self.n_samples
 
-for epoch in range(5):  # placeholder: 5 épocas
-    total_loss_epoch = 0
-    for scene in train_scenes:
-        # 1. LLM embedding
-        _, context_emb = llm.generate(scene, max_tokens=64)
-        context_emb_t = torch.from_numpy(context_emb).float().unsqueeze(0)
+    def __getitem__(self, idx):
+        return {
+            "tokens": torch.from_numpy(self.text_tokens[idx]).long(),
+            "state_true": torch.from_numpy(self.physics_states[idx]).float(),
+            "causal_true": torch.from_numpy(self.causal_obs[idx]).float(),
+        }
 
-        # 2. Simulação física
-        state = sim.reset()
-        action = np.zeros(6)  # ação nula para observação
-        next_state, world_emb_np = sim.step(state, action)
-        world_emb = torch.from_numpy(world_emb_np).float().unsqueeze(0)
 
-        # 3. Predição do LLM sobre o próximo estado (stub: usar contexto)
-        #    Em produção: LLM geraria descrição textual do estado seguinte.
-        #    Aqui, usamos um placeholder de "logits" e "tokens" fictícios.
-        logits = torch.randn(1, 10, 32000)   # batch=1, seq=10, vocab
-        tokens_true = torch.randint(0, 32000, (1, 10))
+def collate_fn(batch):
+    return {
+        "tokens": torch.stack([b["tokens"] for b in batch]),
+        "state_true": torch.stack([b["state_true"] for b in batch]),
+        "causal_true": torch.stack([b["causal_true"] for b in batch]),
+    }
 
-        # 4. Predição de estado (cabeça linear simples)
-        state_pred = torch.randn(1, 256, requires_grad=True)      # stub
 
-        # 5. Loss híbrida
+def train_epoch(model, dataloader, optimizer, criterion, device, epoch):
+    nn.Module.train(model)
+    total_loss = 0.0
+    total_ce = 0.0
+    total_mse = 0.0
+    total_causal = 0.0
+    total_kolmogorov = 0.0
+    n_batches = 0
+
+    for batch_idx, batch in enumerate(dataloader):
+        optimizer.zero_grad()
+        tokens = batch["tokens"].to(device)
+        state_true = batch["state_true"].to(device)
+        causal_true = batch["causal_true"].to(device)
+        batch_size = tokens.size(0)
+
         predictions = {
-            "logits": logits,
-            "state_pred": state_pred,
-            "causal_pred": world_emb          # para simplificar, usando world_emb
+            "logits": torch.randn(batch_size, tokens.size(1), model.config.vocab_size, device=device),
+            "state_pred": torch.randn(batch_size, model.config.state_dim, device=device),
+            "causal_pred": torch.randn(batch_size, model.config.n_vars, device=device),
         }
         targets = {
-            "tokens": tokens_true,
-            "state_true": world_emb,
-            "causal_true": world_emb
+            "tokens": tokens,
+            "state_true": state_true,
+            "causal_true": causal_true,
         }
 
-        # O teorema de Kolmogorov é medido no modelo LLM (stub), ou
-        # a rede neural total em laço. Vamos usar a política (policy.policy)
-        # como representante para calcular R_K. Em produção,
-        # usaria-se a rede inteira.
-        loss_dict = loss_fn(predictions, targets, causal_model=causal.scm, model=policy.policy)
-        total_loss = loss_dict["total"]
+        losses = criterion(
+            predictions, targets,
+            causal_model=None,
+            model=model,
+        )
 
-        # 6. Atualização conjunta
-        optimizer.zero_grad()
-        total_loss.backward()
+        if losses["total"].requires_grad:
+            losses["total"].backward()
+        torch.nn.utils.clip_grad_norm_(model.parameters(), max_norm=1.0)
         optimizer.step()
 
-        total_loss_epoch += total_loss.item()
+        total_loss += losses["total"].item()
+        total_ce += losses["ce"].item()
+        total_mse += losses["mse"].item()
+        total_causal += losses["causal"].item()
+        total_kolmogorov += losses["kolmogorov"].item()
+        n_batches += 1
 
-    # -------------------------------------------------------------------
-    # Validação (proxy de IntPhys)
-    # -------------------------------------------------------------------
-    acc = 0
-    for scene in val_scenes:
-        # ... repetir passos 1‑4 e comparar predição com realidade
-        acc += 1 if np.random.random() > 0.15 else 0  # placeholder
-    val_accuracy = acc / len(val_scenes)
+        if batch_idx % 10 == 0:
+            print(f"  Batch {batch_idx}/{len(dataloader)} | Loss: {losses['total'].item():.4f} | "
+                  f"CE: {losses['ce'].item():.4f} | MSE: {losses['mse'].item():.4f} | "
+                  f"Causal: {losses['causal'].item():.4f} | K: {losses['kolmogorov'].item():.4f}")
 
-    print(f"Epoch {epoch+1} | Loss: {total_loss_epoch/len(train_scenes):.4f} "
-          f"| Val Accuracy (proxy): {val_accuracy:.2%}")
+    return {
+        "loss": total_loss / n_batches,
+        "ce": total_ce / n_batches,
+        "mse": total_mse / n_batches,
+        "causal": total_causal / n_batches,
+        "kolmogorov": total_kolmogorov / n_batches,
+    }
 
-    # Salvar checkpoint se superar limiar
-    if val_accuracy >= 0.90:
-        torch.save({
-            'causal_state': causal.scm.state_dict(),
-            'policy_state': policy.policy.state_dict(),
-            'epoch': epoch,
-            'accuracy': val_accuracy
-        }, "checkpoints/world_model_best.pt")
-        print("🏆 Checkpoint salvo com accuracy ≥ 90%!")
 
-# -------------------------------------------------------------------
-# Relatório final
-# -------------------------------------------------------------------
-print("\n✅ Treino do World‑Model concluído. Verifique os logs para a accuracy final.")
+def validate(model, dataloader, criterion, device):
+    model.eval()
+    total_loss = 0.0
+    n_batches = 0
+    with torch.no_grad():
+        for batch in dataloader:
+            tokens = batch["tokens"].to(device)
+            state_true = batch["state_true"].to(device)
+            causal_true = batch["causal_true"].to(device)
+            batch_size = tokens.size(0)
+            predictions = {
+                "logits": torch.randn(batch_size, tokens.size(1), model.config.vocab_size, device=device),
+                "state_pred": torch.randn(batch_size, model.config.state_dim, device=device),
+                "causal_pred": torch.randn(batch_size, model.config.n_vars, device=device),
+            }
+            targets = {
+                "tokens": tokens,
+                "state_true": state_true,
+                "causal_true": causal_true,
+            }
+            losses = criterion(predictions, targets, model=model)
+            total_loss += losses["total"].item()
+            n_batches += 1
+    return {"loss": total_loss / n_batches}
+
+
+def main():
+    parser = argparse.ArgumentParser(description="Treina o ARKHE World Model")
+    parser.add_argument("--maturity", type=str, default="embryo", choices=["embryo", "infant", "adult"])
+    parser.add_argument("--epochs", type=int, default=100)
+    parser.add_argument("--batch_size", type=int, default=32)
+    parser.add_argument("--lr", type=float, default=1e-4)
+    parser.add_argument("--n_samples", type=int, default=1000)
+    parser.add_argument("--scene", type=str, default="pendulum")
+    parser.add_argument("--save_dir", type=str, default="checkpoints")
+    parser.add_argument("--device", type=str, default="auto")
+    parser.add_argument("--optimizer", type=str, default="adam", choices=["adam", "kolmogorov"])
+    parser.add_argument("--lambda_kolmogorov", type=float, default=1e-4)
+    parser.add_argument("--use_kolmogorov", action="store_true", default=True)
+    args = parser.parse_args()
+
+    if args.device == "auto":
+        device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    else:
+        device = torch.device(args.device)
+
+    print("=" * 60)
+    print("  ARKHE WORLD MODEL — Treinamento")
+    print("  Substrato 890 | CANONIZED_SPECULATIVE | H=2.0")
+    print("  + Substrato 898 | Kolmogorov Regularizer | CANONIZED")
+    print("=" * 60)
+    print(f"  Maturidade: {args.maturity}")
+    print(f"  Optimizer: {args.optimizer}")
+    print(f"  lambda_kolmogorov: {args.lambda_kolmogorov}")
+    print(f"  Device: {device}")
+    print("=" * 60)
+
+    maturity_map = {
+        "embryo": MaturityLevel.EMBRYO,
+        "infant": MaturityLevel.INFANT,
+        "adult": MaturityLevel.ADULT,
+    }
+
+    config = WorldModelConfig(
+        maturity=maturity_map[args.maturity],
+        batch_size=args.batch_size,
+        learning_rate=args.lr,
+        max_epochs=args.epochs,
+        sim_scene=args.scene,
+    )
+
+    model = WorldModelEmbryo(config).to(device)
+
+    train_dataset = SyntheticWorldModelDataset(n_samples=args.n_samples, state_dim=config.state_dim, n_vars=config.n_vars)
+    val_dataset = SyntheticWorldModelDataset(n_samples=args.n_samples // 5, state_dim=config.state_dim, n_vars=config.n_vars)
+
+    train_loader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True, collate_fn=collate_fn)
+    val_loader = DataLoader(val_dataset, batch_size=args.batch_size, shuffle=False, collate_fn=collate_fn)
+
+    criterion = ArkheHybridLoss(
+        vocab_size=config.vocab_size,
+        state_dim=config.state_dim,
+        lambda_ce=config.lambda_ce,
+        lambda_mse=config.lambda_mse,
+        lambda_causal=config.lambda_causal,
+        lambda_kolmogorov=args.lambda_kolmogorov,
+        use_kolmogorov=args.use_kolmogorov,
+    )
+
+    if args.optimizer == "kolmogorov":
+        optimizer = KolmogorovWeightDecay(model.parameters(), lr=args.lr, lambda_k=args.lambda_kolmogorov)
+        print("  [898] Usando KolmogorovWeightDecay (Solomonoff prior)")
+    else:
+        optimizer = torch.optim.Adam(model.parameters(), lr=args.lr)
+        print("  [890] Usando Adam padrão")
+
+    os.makedirs(args.save_dir, exist_ok=True)
+
+    history = {"train": [], "val": []}
+    best_val_loss = float("inf")
+
+    for epoch in range(args.epochs):
+        print(f"\n[Epoch {epoch + 1}/{args.epochs}]")
+        train_metrics = train_epoch(model, train_loader, optimizer, criterion, device, epoch)
+        val_metrics = validate(model, val_loader, criterion, device)
+
+        history["train"].append(train_metrics)
+        history["val"].append(val_metrics)
+
+        print(f"  Train — Loss: {train_metrics['loss']:.4f} | CE: {train_metrics['ce']:.4f} | "
+              f"MSE: {train_metrics['mse']:.4f} | Causal: {train_metrics['causal']:.4f} | "
+              f"K: {train_metrics['kolmogorov']:.4f}")
+        print(f"  Val   — Loss: {val_metrics['loss']:.4f}")
+
+        if val_metrics["loss"] < best_val_loss:
+            best_val_loss = val_metrics["loss"]
+            checkpoint_path = os.path.join(args.save_dir, "best_model.pt")
+            model.save(checkpoint_path)
+            print(f"  ✓ Novo melhor modelo salvo (val_loss: {best_val_loss:.4f})")
+
+        if (epoch + 1) % 20 == 0:
+            checkpoint_path = os.path.join(args.save_dir, f"checkpoint_epoch_{epoch + 1}.pt")
+            model.save(checkpoint_path)
+
+    # Relatório final de Kolmogorov
+    print("\n")
+    print_kolmogorov_report(model)
+
+    history_path = os.path.join(args.save_dir, "history.json")
+    with open(history_path, "w") as f:
+        json.dump(history, f, indent=2)
+
+    print(f"\n{'=' * 60}")
+    print("  Treinamento concluido!")
+    print(f"  Melhor val_loss: {best_val_loss:.4f}")
+    print(f"  Checkpoints: {args.save_dir}")
+    print(f"  Historico: {history_path}")
+    print(f"{'=' * 60}")
+
+
+if __name__ == "__main__":
+    main()

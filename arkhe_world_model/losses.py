@@ -37,7 +37,8 @@ class ArkheHybridLoss(nn.Module):
         lambda_ce: peso da loss de linguagem
         lambda_mse: peso da loss de estado físico
         lambda_causal: peso da loss causal
-        lambda_k: peso do regularizador de Kolmogorov (Substrato 898)
+        lambda_kolmogorov: peso do regularizador de Kolmogorov (Substrato 898)
+        use_kolmogorov: se True, aplica regularizador de Kolmogorov
     """
     def __init__(
         self,
@@ -46,7 +47,8 @@ class ArkheHybridLoss(nn.Module):
         lambda_ce: float = 1.0,
         lambda_mse: float = 0.5,
         lambda_causal: float = 0.3,
-        lambda_k: float = 1e-5,
+        lambda_kolmogorov: float = 1e-4,
+        use_kolmogorov: bool = True,
     ):
         super().__init__()
         self.vocab_size = vocab_size
@@ -54,21 +56,22 @@ class ArkheHybridLoss(nn.Module):
         self.lambda_ce = lambda_ce
         self.lambda_mse = lambda_mse
         self.lambda_causal = lambda_causal
-        self.lambda_k = lambda_k
+        self.lambda_kolmogorov = lambda_kolmogorov
+        self.use_kolmogorov = use_kolmogorov
 
         # Componentes individuais
         self.ce_loss = nn.CrossEntropyLoss(ignore_index=-100)
         self.mse_loss = nn.MSELoss()
 
         print(f"[890+898] ArkheHybridLoss: CE={lambda_ce}, MSE={lambda_mse}, "
-              f"Causal={lambda_causal}, Kolmogorov={lambda_k}")
+              f"Causal={lambda_causal}, Kolmogorov={lambda_kolmogorov}")
 
     def forward(
         self,
         predictions: Dict[str, torch.Tensor],
         targets: Dict[str, torch.Tensor],
-        model: Optional[nn.Module] = None,
         causal_model=None,
+        model: Optional[nn.Module] = None,
     ) -> Dict[str, torch.Tensor]:
         """
         Computa loss híbrida.
@@ -86,7 +89,7 @@ class ArkheHybridLoss(nn.Module):
             model: modelo neural (opcional, para regularizador de Kolmogorov)
 
         Returns:
-            losses: dict com "total", "ce", "mse", "causal", "k"
+            losses: dict com "total", "ce", "mse", "causal", "kolmogorov"
         """
         losses = {}
 
@@ -96,37 +99,33 @@ class ArkheHybridLoss(nn.Module):
             tokens = targets["tokens"].reshape(-1)
             losses["ce"] = self.ce_loss(logits, tokens)
         else:
-            losses["ce"] = torch.tensor(0.0, device=predictions.get("logits", torch.tensor(0.0)).device)
+            losses["ce"] = torch.tensor(0.0, device=predictions["logits"].device if "logits" in predictions else "cpu")
 
         # 2. MSE — estado físico
         if "state_pred" in predictions and "state_true" in targets:
             losses["mse"] = self.mse_loss(predictions["state_pred"], targets["state_true"])
         else:
-            losses["mse"] = torch.tensor(0.0, device=predictions.get("state_pred", torch.tensor(0.0)).device)
+            losses["mse"] = torch.tensor(0.0, device=predictions["state_pred"].device if "state_pred" in predictions else "cpu")
 
         # 3. Causal loss — estrutura DAG + predição contrafactual
         if causal_model is not None and "causal_pred" in predictions and "causal_true" in targets:
-            # assumindo que causal_model tem um causal_loss
-            if hasattr(causal_model, 'causal_loss'):
-                losses["causal"] = causal_model.causal_loss(targets["causal_true"], predictions["causal_pred"])
-            else:
-                losses["causal"] = torch.tensor(0.0)
+            losses["causal"] = causal_model.causal_loss(targets["causal_true"], predictions["causal_pred"])
         else:
             losses["causal"] = torch.tensor(0.0)
 
         # 4. Kolmogorov regularizer — complexidade de descrição (Substrato 898)
-        loss_k = torch.tensor(0.0, requires_grad=False, device=predictions.get("state_pred", torch.tensor(0.0)).device)
-        if model is not None:
+        if self.use_kolmogorov and model is not None:
             from .kolmogorov_regularizer import kolmogorov_regularizer
-            loss_k = kolmogorov_regularizer(model)
-        losses["k"] = loss_k
+            losses["kolmogorov"] = kolmogorov_regularizer(model)
+        else:
+            losses["kolmogorov"] = torch.tensor(0.0)
 
         # Total ponderada
         losses["total"] = (
             self.lambda_ce * losses["ce"] +
             self.lambda_mse * losses["mse"] +
             self.lambda_causal * losses["causal"] +
-            self.lambda_k * losses["k"]
+            self.lambda_kolmogorov * losses["kolmogorov"]
         )
 
         return losses

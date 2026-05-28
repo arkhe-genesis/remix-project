@@ -1,0 +1,5 @@
+env: prod
+api_endpoints:
+  dict: "https://api-pix.bcb.gov.br"
+  spb: "https://str.bcb.gov.br"
+  clearing: "https://c3.bcb.gov.br"

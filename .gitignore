@@ -96,3 +96,5 @@ apps/remix-ide-e2e/tmp/
 /blob-report/
 /playwright/.cache/
 /playwright/.auth/
+target/
+arkhe_brasil_finance_substrate_261/target/

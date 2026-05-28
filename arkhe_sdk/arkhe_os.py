@@ -31,6 +31,8 @@ Princípio: A simplicidade é a sofisticação final. Um arquivo, uma verdade.
 """
 
 import hashlib
+from .android.arkhe_android_os import ArkheAndroidOSBridge
+
 import hmac
 import json
 import logging
@@ -572,6 +574,7 @@ class ArkheOmniAgent:
         self._init_memory()
         self._init_hypergraph()
         self._init_qpow()
+        self._init_android_bridge()
 
         # Statistics
         self.total_perceptions = 0
@@ -620,6 +623,10 @@ class ArkheOmniAgent:
         self.qpow = QuantumProofOfWork() if self.config.qpow_enabled else None
         if self.qpow:
             logger.info("⚡ Substrate 902 (Quantum Proof-of-Work) active")
+
+    def _init_android_bridge(self):
+        self.android_bridge = ArkheAndroidOSBridge(self)
+        logger.info("📱 Substrate 929 (ARKHE-ANDROID-OS-BRIDGE) active")
 
     def _log_substrate_status(self):
         substrates = [

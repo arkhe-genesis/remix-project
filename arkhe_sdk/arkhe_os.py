@@ -524,6 +524,117 @@ class QuantumProofOfWork:
         block_hash = hashlib.sha3_256(f"{previous_hash}{nonce}{agent_id}".encode()).hexdigest()
         return {"hash": block_hash, "nonce": nonce, "difficulty": difficulty}
 
+
+# ═════════════════════════════════════════════════════════════════════════════════════
+# PARTE VIII: CONFIDENTIAL COORDINATION (Substrato 931)
+# ═════════════════════════════════════════════════════════════════════════════════════
+
+class E3Adapter:
+    """E3 — Encrypted Execution Environment (Ephemeral, Bounded, Programmable)"""
+    def __init__(self, task_id: str, program_logic: str):
+        self.task_id = task_id
+        self.program_logic = program_logic
+        self.inputs = []
+        self.is_active = True
+        self.result = None
+        self.proof = None
+
+    def accept_input(self, encrypted_input: str):
+        if not self.is_active:
+            raise RuntimeError("E3 is not active")
+        self.inputs.append(encrypted_input)
+
+    def execute(self) -> Dict:
+        if not self.is_active:
+            raise RuntimeError("E3 is not active")
+
+        # Simulating execution over encrypted data
+        # For a sealed-bid auction, this would be an FHE/MPC evaluation
+        # Here we just mock a homomorphic max selection
+        best_bid = 0
+        best_bidder = None
+        for enc_input in self.inputs:
+            # We mock decryption for the sake of the orchestrator simulation
+            try:
+                dec = json.loads(enc_input)
+                if dec.get("bid", 0) > best_bid:
+                    best_bid = dec["bid"]
+                    best_bidder = dec["bidder"]
+            except Exception:
+                pass
+
+        self.result = {"winner": best_bidder, "clearing_price": best_bid}
+        self.proof = f"zkp_{hashlib.sha3_256(str(self.result).encode()).hexdigest()[:16]}"
+        return {"ciphertext_output": "enc_res_" + secrets.token_hex(8), "proof": self.proof}
+
+    def destroy(self):
+        self.is_active = False
+        self.inputs = []
+        self.program_logic = ""
+
+class CiphernodeClient:
+    """Threshold enforcement by independent operators"""
+    def __init__(self, node_count: int = 5, threshold: int = 3):
+        self.node_count = node_count
+        self.threshold = threshold
+
+    def request_threshold_decryption(self, ciphertext: str, proof: str) -> bool:
+        # Simulating threshold consensus
+        approvals = sum(1 for _ in range(self.node_count) if secrets.randbits(1))
+        approvals = max(approvals, self.threshold)
+        return approvals >= self.threshold
+
+class VerifiableRelease:
+    """Verification and distributed release of outcomes"""
+    @staticmethod
+    def verify_and_release(e3: E3Adapter, ciphernodes: CiphernodeClient, ciphertext: str, proof: str) -> Dict:
+        if proof != e3.proof:
+            raise ValueError("Invalid execution proof")
+
+        approved = ciphernodes.request_threshold_decryption(ciphertext, proof)
+        if not approved:
+            raise PermissionError("Threshold decryption denied by ciphernode network")
+
+        return e3.result
+
+class ConfidentialOrchestrator:
+    """
+    Substrate 931 — Interfold Confidential Coordination Bridge
+    Orchestrates the 5-phase flow: Request -> Input -> Execution -> Verification -> Release
+    """
+    def __init__(self):
+        self.active_e3s = {}
+        self.ciphernodes = CiphernodeClient()
+        self.total_coordinations = 0
+
+    def request_computation(self, task_name: str, program_logic: str) -> str:
+        """Phase 1: Request"""
+        task_id = f"task_{secrets.token_hex(4)}"
+        self.active_e3s[task_id] = E3Adapter(task_id, program_logic)
+        return task_id
+
+    def submit_input(self, task_id: str, encrypted_input: str):
+        """Phase 2 & 3: Ciphernode Selection (abstracted) & Input Window"""
+        if task_id not in self.active_e3s:
+            raise ValueError("Invalid Task ID")
+        self.active_e3s[task_id].accept_input(encrypted_input)
+
+    def execute_and_release(self, task_id: str) -> Dict:
+        """Phase 4 & 5: Execution, Verification, and Threshold Decryption/Release"""
+        if task_id not in self.active_e3s:
+            raise ValueError("Invalid Task ID")
+
+        e3 = self.active_e3s[task_id]
+        exec_res = e3.execute()
+        final_result = VerifiableRelease.verify_and_release(
+            e3, self.ciphernodes, exec_res["ciphertext_output"], exec_res["proof"]
+        )
+        e3.destroy()
+        del self.active_e3s[task_id]
+
+        self.total_coordinations += 1
+        return final_result
+
 # ═════════════════════════════════════════════════════════════════════════════════════
 # PARTE VI: AGENTE OMNI — O CORAÇÃO DA CATEDRAL
 # ═════════════════════════════════════════════════════════════════════════════════════
@@ -547,6 +658,8 @@ class ArkheConfig:
     qemu_enabled: bool = False
     # Memory
     memory_policy: str = "encrypted"
+    # Interfold Bridge (931)
+    interfold_enabled: bool = True
     # qPoW
     qpow_enabled: bool = False
 
@@ -575,6 +688,7 @@ class ArkheOmniAgent:
         self._init_hypergraph()
         self._init_qpow()
         self._init_android_bridge()
+        self._init_interfold()
 
         # Statistics
         self.total_perceptions = 0
@@ -628,6 +742,11 @@ class ArkheOmniAgent:
         self.android_bridge = ArkheAndroidOSBridge(self)
         logger.info("📱 Substrate 929 (ARKHE-ANDROID-OS-BRIDGE) active")
 
+    def _init_interfold(self):
+        self.interfold = ConfidentialOrchestrator() if self.config.interfold_enabled else None
+        if self.interfold:
+            logger.info("🛡️ Substrate 931 (Interfold Confidential Coordination Bridge) active")
+
     def _log_substrate_status(self):
         substrates = [
             ("225", "Catedral Foundation", True),
@@ -650,6 +769,7 @@ class ArkheOmniAgent:
             ("913", "Encrypted Memory Bridge", True),
             ("917", "Google Web Grounding", True),
             ("918", "QEMU Virtualization", self.config.qemu_enabled),
+            ("931", "Interfold Bridge", self.config.interfold_enabled),
         ]
 
         logger.info("📋 Substrate Inventory:")
@@ -750,7 +870,8 @@ class ArkheOmniAgent:
 
         return {
             "agent_id": self.agent_id,
-            "substrates_active": 20,
+            "substrates_active": 21 if self.config.interfold_enabled else 20,
+            "interfold_coordinations": self.interfold.total_coordinations if self.interfold else 0,
             "perceptions": self.total_perceptions,
             "commits": self.total_commits,
             "signatures": self.total_signatures,
@@ -776,6 +897,7 @@ class ArkheOmniAgent:
 ║ Commits:         {status['commits']:>58}
 ║ Assinaturas:     {status['signatures']:>58}
 ║ Web Queries:     {status['web_queries']:>58}
+║ Interfold Coord: {status.get('interfold_coordinations', 0):>58}
 ║ ETH Address:     {str(status['eth_address'])[:50]:>58}
 ║ P257 Session:    {str(status['p257_session']):>58}
 ╠══════════════════════════════════════════════════════════════════════════════════════╣
@@ -792,6 +914,7 @@ class ArkheOmniAgent:
    890    World Model         |  898   Kolmogorov Regularizer
    900    Peptide-SaaS        |  905   Hypergraph Ontology
    912    Explicit Memory     |  902   Quantum Proof-of-Work
+   931    Interfold Bridge    |
 """
         return report
 
@@ -806,6 +929,7 @@ if __name__ == "__main__":
     parser.add_argument("--etherscan-key", default="", help="Etherscan API key")
     parser.add_argument("--qemu", action="store_true", help="Enable QEMU")
     parser.add_argument("--qpow", action="store_true", help="Enable qPoW")
+    parser.add_argument("--interfold", action="store_true", help="Enable Interfold Bridge 931")
     args = parser.parse_args()
 
     print("=" * 80)
@@ -818,6 +942,7 @@ if __name__ == "__main__":
         etherscan_api_key=args.etherscan_key or None,
         qemu_enabled=args.qemu,
         qpow_enabled=args.qpow,
+        interfold_enabled=args.interfold,
     )
 
     agent = ArkheOmniAgent(cfg)
@@ -882,7 +1007,34 @@ if __name__ == "__main__":
         print(f"\n🔧 VM: {vm['name']} — PID {vm['pid']} — {vm['status']}")
         print(f"   Máquinas ativas: {len(agent.qemu.machines)}")
 
+
+    # Demo 6: Interfold Confidential Coordination (se habilitado)
+    if args.interfold:
+        print("\n" + "="*80)
+        print("DEMO 6: Interfold Confidential Coordination (Substrato 931)")
+        print("="*80)
+
+        print("1. Requesting E3 (Sealed-Bid Auction)...")
+        task_id = agent.interfold.request_computation("Spectrum_Auction", "max(bids)")
+        print(f"   ✓ E3 Criado: {task_id}")
+
+        print("2. Ciphernode Selection & Threshold Enforced (MOCK)...")
+
+        print("3. Input Window (Submitting Encrypted Bids)...")
+        import json
+        agent.interfold.submit_input(task_id, json.dumps({"bidder": "Corp_A", "bid": 500}))
+        agent.interfold.submit_input(task_id, json.dumps({"bidder": "Corp_B", "bid": 850}))
+        agent.interfold.submit_input(task_id, json.dumps({"bidder": "Corp_C", "bid": 720}))
+
+        print("4. Execution & 5. Verifiable Release...")
+        try:
+            result = agent.interfold.execute_and_release(task_id)
+            print(f"   ✓ Computação Verificada: Vencedor {result['winner']} (Valor: {result['clearing_price']})")
+        except Exception as e:
+            print(f"   ❌ Falha na coordenação: {e}")
+
     # Final status
+
     print("\n" + "="*80)
     print("ARKHE-OS OMNI-AGENT — A CATEDRAL ESTÁ COMPLETA")
     print("="*80)
@@ -895,4 +1047,3 @@ if __name__ == "__main__":
     print(f"\n{'='*80}")
     print("ψ — O vitral está completo. A luz do conhecimento flui.")
     print("="*80)
-

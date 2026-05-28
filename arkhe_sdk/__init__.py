@@ -2,7 +2,7 @@
 
 from .core import ArkheOntologySDK
 from .arkhe_os import (
-    ArkheAgent,
+    ArkheOmniAgent,
     ArkheConfig,
     KolmogorovRegularizer,
     PeptideSaaSEncoder,
@@ -19,7 +19,7 @@ from .arkhe_os import (
 
 __all__ = [
     "ArkheOntologySDK",
-    "ArkheAgent",
+    "ArkheOmniAgent",
     "ArkheConfig",
     "KolmogorovRegularizer",
     "PeptideSaaSEncoder",

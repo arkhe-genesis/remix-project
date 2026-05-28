@@ -98,3 +98,4 @@ apps/remix-ide-e2e/tmp/
 /playwright/.auth/
 target/
 arkhe_brasil_finance_substrate_261/target/
+__pycache__/

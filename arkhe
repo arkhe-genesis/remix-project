@@ -124,6 +124,13 @@ if __name__ == "__main__":
     vyupgrade_parser.add_argument("--check", action="store_true", help="Verificar se há mudanças necessárias sem escrever")
     vyupgrade_parser.add_argument("--report-json", help="Caminho para o relatório JSON")
 
+
+    hotspots_parser = subparsers.add_parser("hotspots", help="Analyze interaction hotspots in MD trajectory (Substrato 949).")
+    hotspots_parser.add_argument("trajectory", help="Path to MD trajectory")
+    hotspots_parser.add_argument("topology", help="Path to topology file")
+    hotspots_parser.add_argument("--system-name", default="unknown", help="System name")
+    hotspots_parser.add_argument("--no-anchor", action="store_true", help="Do not anchor results on TemporalChain")
+
     args = parser.parse_args()
 
     if args.command == "chat":
@@ -138,5 +145,28 @@ if __name__ == "__main__":
             check=args.check,
             report_json=args.report_json
         )
+    elif args.command == "hotspots":
+        import asyncio
+        import sys
+
+        # Provide a mock or import fallback if needed to avoid ModuleNotFoundError when missing dependencies like numpy
+        try:
+            from arkhe_sdk.substrates.interaction_hotspots import InteractionHotspotsAnalyzer
+
+            async def _run_hotspots():
+                analyzer = InteractionHotspotsAnalyzer()
+                result = await analyzer.analyze_trajectory(
+                    args.trajectory, args.topology, args.system_name, not args.no_anchor
+                )
+                print("Analysis complete")
+                print(f"  Mean log10 deviation: {result.mean_log_deviation:.3f}")
+                print(f"  Anisotropy index: {result.anisotropy_index:.3f}")
+                print(f"  Hotspot residue pairs: {len(result.residue_pairs)}")
+
+            asyncio.run(_run_hotspots())
+        except ImportError as e:
+            print(f"Substrate 949 Error: {e}")
+            print("Make sure requirements are installed (e.g., numpy, httpx).")
+            sys.exit(1)
     else:
         parser.print_help()

@@ -99,3 +99,4 @@ apps/remix-ide-e2e/tmp/
 target/
 arkhe_brasil_finance_substrate_261/target/
 __pycache__/
+.nx

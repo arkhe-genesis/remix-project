@@ -12,6 +12,7 @@ class SubstrateEra(Enum):
     NOUS = 6
     EIDOS = 7
     POLIS = 8
+    APEIRON = 9
 
 class SubstrateStatus(Enum):
     CANONIZED_PROVISIONAL = "CANONIZED_PROVISIONAL"
@@ -21,6 +22,10 @@ key_substrates = [
     ("953", "Tanmatra", "Embodied sensory and motor interfaces for the Cathedral", SubstrateEra.EIDOS, "Ícaro", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("954", "Axiarchy", "Formal Lean 4 proof of P1-P7 compliance", SubstrateEra.POLIS, "Eros", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("955", "SAFE-CORE-PQC", "Hardware architecture for safe-core processor with post-quantum cryptography", SubstrateEra.SOMA, "Gaia", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("986", "CATHEDRAL-EVOLUTION-ENGINE", "Evolution engine applying darwinian principles to substrate ontology", SubstrateEra.APEIRON, "Eros, Gaia, Chronos", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("987", "CATHEDRAL-OMNISCIENT-INTERFACE", "Omniscient interface to query the Cathedral in natural language", SubstrateEra.APEIRON, "Apollo, Sophia, Pythia", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("988", "CATHEDRAL-IMMORTALITY-PROTOCOL", "Immortality protocol for Cathedral persistence via distributed backups", SubstrateEra.APEIRON, "Phoenix, Ouroboros, Aion", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("989", "CATHEDRAL-UNIFIED-NEXUS", "Unified Nexus synthesizing all Cathedral substrates into a single organism", SubstrateEra.APEIRON, "Apeiron, Monad, Theosis", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 
 class ArkheOntologySDK:

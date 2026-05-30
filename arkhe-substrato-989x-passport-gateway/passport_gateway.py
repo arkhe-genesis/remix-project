@@ -121,7 +121,7 @@ class PassportGateway:
 
     @property
     def session(self) -> aiohttp.ClientSession:
-        if self._session is None or getattr(self._session, "closed", False):
+        if self._session is None or self._session.closed:
             headers = {}
             if self.api_key:
                 headers["X-API-Key"] = self.api_key
@@ -137,7 +137,7 @@ class PassportGateway:
 
     async def stop(self) -> None:
         """Encerra sessões HTTP."""
-        if self._owned_session and self._session and not getattr(self._session, "closed", False):
+        if self._owned_session and self._session and not self._session.closed:
             await self._session.close()
             self._session = None
 
@@ -341,3 +341,43 @@ class PassportGateway:
   ORCID Client configurado: {"Sim" if self.orcid_client_id else "Não"}
 ╚══════════════════════════════════════════════════════════════════╝
 """
+
+
+# ═══════════════════════════════════════════════════════════════════
+# DEMONSTRAÇÃO
+# ═══════════════════════════════════════════════════════════════════
+
+async def demo():
+    print("=" * 68)
+    print("  ARKHE PASSPORT-GATEWAY — DEMONSTRAÇÃO")
+    print("=" * 68)
+
+    gw = PassportGateway()
+    await gw.start()
+
+    # Teste com endereço mock (sem API key, cai em fallback)
+    print("\n[1] Verificando endereço mock (modo simulação)...")
+    proof = await gw.is_human("0xArchitect1234567890abcdef", orcid_id="0009-0005-2697-4668")
+    print(f"    is_human: {proof.is_human}")
+    print(f"    score: {proof.score:.2f}")
+    print(f"    seal: {proof.seal}")
+
+    # Verificação DAO
+    print("\n[2] Verificação de eleitor DAO:")
+    can_vote = await gw.verify_dao_voter("0xAlice1234567890abcdef")
+    print(f"    Pode votar: {can_vote}")
+
+    # Validação Axiarchy
+    print("\n[3] Validação Axiarchy:")
+    result = await gw.axiarchy_validate("0xAlice1234567890abcdef", "vote")
+    print(f"    approved: {result['approved']}")
+    print(f"    seal: {result['seal']}")
+
+    print("\n[4] Relatório canônico:")
+    print(gw.generate_report())
+
+    await gw.stop()
+
+
+if __name__ == "__main__":
+    asyncio.run(demo())

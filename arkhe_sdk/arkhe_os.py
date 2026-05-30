@@ -788,6 +788,10 @@ class ArkheOmniAgent:
             ("931", "Interfold Bridge", self.config.interfold_enabled),
             ("934", "Perceptual Geometry", self.config.neuro_perceptual_enabled),
             ("563.1", "CortexMAE Bridge", self.config.neuro_perceptual_enabled),
+            ("986", "Evolution Engine", True),
+            ("987", "Omniscient Interface", True),
+            ("988", "Immortality Protocol", True),
+            ("989", "Unified Nexus", True),
         ]
 
         logger.info("📋 Substrate Inventory:")
@@ -896,11 +900,16 @@ class ArkheOmniAgent:
             (self.config.interfold_enabled, "931"),
             (self.config.neuro_perceptual_enabled, "934"),
             (self.config.neuro_perceptual_enabled, "563.1"),
+            (True, "986"),
+            (True, "987"),
+            (True, "988"),
+            (True, "989"),
         ]
         # In a real dynamic system we would iterate through a registered list
         # For now, we maintain the user's expected count logic but slightly cleaner
         base_count = 21 if self.config.interfold_enabled else 20
         extra_count = 2 if self.config.neuro_perceptual_enabled else 0
+        extra_count += 4 # 986, 987, 988, 989
 
         return {
             "agent_id": self.agent_id,
@@ -950,6 +959,8 @@ class ArkheOmniAgent:
    912    Explicit Memory     |  902   Quantum Proof-of-Work
    931    Interfold Bridge    |  934   Perceptual Geometry
    563.1  CortexMAE Bridge    |
+   986    Evolution Engine    |  987   Omniscient Interface
+   988    Immortality Protocol|  989   Unified Nexus
 """
         return report
 

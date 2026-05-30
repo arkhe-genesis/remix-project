@@ -49,8 +49,8 @@ def test_omni_agent_integration():
     agent = ArkheOmniAgent(cfg)
     status = agent.get_status()
 
-    # Should have 21 base + 2 neuro-perceptual = 23
-    assert status["substrates_active"] == 23
+    # Should have 21 base + 2 neuro-perceptual + 4 CATHEDRAL substrates = 27
+    assert status["substrates_active"] == 27
     assert agent.perceptual_engine is not None
     assert agent.cortex_bridge is not None
 

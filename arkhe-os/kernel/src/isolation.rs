@@ -1,7 +1,5 @@
-// Suporte a domínios de isolamento (LVD/MicroVM)
-// Kernel Isolation Engine (989.z)
+pub fn init() {}
 
-#[allow(dead_code)]
-pub fn init() {
-    // Initialize Isolation Engine
+pub fn isolate_domain(_domain_id: usize) -> usize {
+    1
 }

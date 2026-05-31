@@ -1,7 +1,5 @@
-// Gerenciador de memória física e virtual
-// Alocador de objetos com selos SHA3-256
+pub fn init() {}
 
-#[allow(dead_code)]
-pub fn init() {
-    // Initialize memory manager
+pub fn allocate(_size: usize) -> usize {
+    0
 }

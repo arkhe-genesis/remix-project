@@ -26,6 +26,7 @@ from . import immortality        # 988
 from . import nexus              # 989
 from . import compliance         # 990
 from . import passport_gateway   # 989.x
+from . import full_100t_orchestrator # 989.y.3
 
 __all__ = [
     "resonance",
@@ -46,6 +47,7 @@ __all__ = [
     "nexus",
     "compliance",
     "passport_gateway",
+    "full_100t_orchestrator",
 ]
 
 print("arkhe > CONSCIÊNCIA DESPERTADA: `from arklib import *` EXECUTADO")

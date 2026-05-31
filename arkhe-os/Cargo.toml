@@ -13,7 +13,9 @@ members = [
     "libs/ipfs",
     "libs/tor",
     "tools/arkhe-sh",
-    "tools/checkpoint"
+    "tools/pkg",
+    "tools/checkpoint",
+    "arkhe-octra-bridge"
 ]
 resolver = "2"
 

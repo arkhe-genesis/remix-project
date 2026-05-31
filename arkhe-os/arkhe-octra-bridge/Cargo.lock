@@ -9,10 +9,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7f202df86484c868dbad7eaa557ef785d5c66295e41b460ef922eca0723b842c"
 
 [[package]]
-name = "arkhe-nostr"
-version = "0.1.0"
-
-[[package]]
 name = "arkhe-octra-bridge"
 version = "996.1.0"
 dependencies = [
@@ -27,54 +23,6 @@ dependencies = [
  "tonic",
  "tracing",
 ]
-
-[[package]]
-name = "arkhe-os-bindu"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-os-checkpoint"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-os-kernel"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-os-net"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-os-orchestrator"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-os-package"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-os-passport"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-os-vfs"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-pqc"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-sh"
-version = "0.1.0"
-
-[[package]]
-name = "arkhe-tor"
-version = "0.1.0"
-
-[[package]]
-name = "arklib-rs"
-version = "0.1.0"
 
 [[package]]
 name = "async-stream"

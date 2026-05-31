@@ -1,6 +1,5 @@
-// TemporalChain local
+pub fn init() {}
 
-#[allow(dead_code)]
-pub fn init() {
-    // Initialize TemporalChain integration
+pub fn anchor(_cid_ptr: usize, _seal_ptr: usize, _len: usize) -> usize {
+    1
 }

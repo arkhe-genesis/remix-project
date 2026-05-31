@@ -49,11 +49,11 @@ name = "arkhe-os-orchestrator"
 version = "0.1.0"
 
 [[package]]
-name = "arkhe-os-passport"
+name = "arkhe-os-package"
 version = "0.1.0"
 
 [[package]]
-name = "arkhe-os-pkg"
+name = "arkhe-os-passport"
 version = "0.1.0"
 
 [[package]]
@@ -66,6 +66,10 @@ version = "0.1.0"
 
 [[package]]
 name = "arkhe-sh"
+version = "0.1.0"
+
+[[package]]
+name = "arkhe-tor"
 version = "0.1.0"
 
 [[package]]

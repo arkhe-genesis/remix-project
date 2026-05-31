@@ -1,0 +1,9 @@
+// ARKHE-ONCHAIN — Axiarchy Gate
+// Substrato 996.1 — Circle: ARKHE-CATHEDRAL
+// Arquiteto ORCID: 0009-0005-2697-4668
+
+interface IAxiarchyGate {
+  view fn is_verified(code_hash: bytes32): bool
+  fn verify_code(code_hash: bytes32, lean_proof: bytes): bool
+  fn revoke_verification(code_hash: bytes32): bool
+}

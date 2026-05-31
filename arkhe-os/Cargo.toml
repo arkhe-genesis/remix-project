@@ -11,7 +11,8 @@ members = [
     "libs/nostr",
     "tools/arkhe-sh",
     "tools/pkg",
-    "tools/checkpoint"
+    "tools/checkpoint",
+    "arkhe-octra-bridge"
 ]
 resolver = "2"
 

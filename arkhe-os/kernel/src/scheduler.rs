@@ -1,11 +1,7 @@
-// Escalonador preemptivo com métrica de Theosis
+pub fn init() {}
 
-#[allow(dead_code)]
-pub fn init() {
-    // Initialize scheduler
-}
+pub fn yield_execution() {}
 
-#[allow(dead_code)]
-pub fn yield_execution() {
-    // Yield execution to the scheduler
+pub fn get_theosis(_pid: u32) -> usize {
+    0
 }

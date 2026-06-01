@@ -1,3 +1,1 @@
-fn main() {
-    println!("ARKHE OS VFS Server starting...");
-}
+fn main() { println!("VFS started"); }

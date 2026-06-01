@@ -7,6 +7,7 @@ mod memory;
 mod scheduler;
 mod syscalls;
 mod temporal;
+mod axiarchy;
 
 #[cfg(not(test))]
 use core::panic::PanicInfo;
@@ -20,6 +21,7 @@ pub extern "C" fn _start() -> ! {
     ipc::init();
     isolation::init();
     temporal::init();
+    axiarchy::init();
 
     loop {
         // Idle loop

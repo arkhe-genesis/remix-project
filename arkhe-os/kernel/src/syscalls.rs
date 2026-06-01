@@ -20,8 +20,28 @@ pub enum Syscall {
     AxiarchyVerify = 0x954,    // Verificação ética de código
 }
 
-#[allow(dead_code)]
-#[allow(unused_variables)]
-pub fn handle_syscall(syscall_num: usize) {
-    // Handle the syscall based on the number
+// Trampolim da syscall
+#[no_mangle]
+pub extern "C" fn syscall_handler(
+    syscall_num: usize,
+    arg1: usize,
+    arg2: usize,
+    arg3: usize,
+) -> usize {
+    match syscall_num {
+        // AnchorProof: arg1 = cid_ptr, arg2 = seal_ptr, arg3 = len
+        x if x == Syscall::AnchorProof as usize => {
+            crate::temporal::anchor(arg1, arg2, arg3)
+        }
+        // ThesisGet: arg1 = pid
+        x if x == Syscall::ThesisGet as usize => {
+            crate::scheduler::get_theosis(arg1 as u32)
+        }
+        // AxiarchyVerify: arg1 = code_hash_ptr
+        x if x == Syscall::AxiarchyVerify as usize => {
+            crate::axiarchy::verify_code(arg1)
+        }
+        // ... implementar as demais syscalls ...
+        _ => 0,
+    }
 }

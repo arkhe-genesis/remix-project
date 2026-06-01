@@ -1,1 +1,1 @@
-fn main() {}
+fn main() { println!("Bindu started"); }

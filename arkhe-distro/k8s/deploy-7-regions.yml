@@ -1,0 +1,4 @@
+- hosts: all
+  tasks:
+    - name: Deploy ARKHE OS
+      shell: echo "Deploying to 7 regions"

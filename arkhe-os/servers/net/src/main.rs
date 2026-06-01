@@ -1,3 +1,1 @@
-fn main() {
-    println!("ARKHE OS Network Server starting...");
-}
+fn main() { println!("Network started"); }

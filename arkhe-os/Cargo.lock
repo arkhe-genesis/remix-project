@@ -27,6 +27,10 @@ name = "arkhe-os-orchestrator"
 version = "0.1.0"
 
 [[package]]
+name = "arkhe-os-package"
+version = "0.1.0"
+
+[[package]]
 name = "arkhe-os-passport"
 version = "0.1.0"
 

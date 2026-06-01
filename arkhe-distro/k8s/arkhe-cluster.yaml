@@ -1,0 +1,17 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: arkhe-cluster
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: arkhe-cluster
+  template:
+    metadata:
+      labels:
+        app: arkhe-cluster
+    spec:
+      containers:
+      - name: arkhe-os
+        image: arkhe-os:latest

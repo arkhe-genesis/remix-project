@@ -6,6 +6,7 @@ members = [
     "servers/passport",
     "servers/orchestrator",
     "servers/bindu",
+    "servers/package",
     "libs/arklib",
     "libs/pqc",
     "libs/nostr",

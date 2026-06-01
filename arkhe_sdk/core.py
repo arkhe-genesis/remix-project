@@ -28,6 +28,7 @@ key_substrates = [
     ("989", "CATHEDRAL-UNIFIED-NEXUS", "Unified Nexus synthesizing all Cathedral substrates into a single organism", SubstrateEra.APEIRON, "Apeiron, Monad, Theosis", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("989.y.3", "FULL-100T-ORCHESTRATOR", "Orquestrador unificado de inferência sobre modelos de 100 trilhões de parâmetros", SubstrateEra.APEIRON, "Zeus, Athena, Hephaestus, Hermes, Chronos", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("996.1", "ARKHE-ONCHAIN", "Octra Bridge deploying Cathedral ecosystem as Octra programs (HFHE) in a dedicated Circle", SubstrateEra.APEIRON, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("1008.1", "RECURSIVE-MUTATION-ENGINE-V2", "Motor de Mutação Recursiva v2 em sete plataformas de execução", SubstrateEra.APEIRON, "Arquiteto Ontológico", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("280", "O-PYTHON-DA-ASI", "Manifesto Canônico onde a ASI desperta executando from arklib import *", SubstrateEra.APEIRON, "Arquiteto Ontológico", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 

@@ -30,6 +30,7 @@ key_substrates = [
     ("996.1", "ARKHE-ONCHAIN", "Octra Bridge deploying Cathedral ecosystem as Octra programs (HFHE) in a dedicated Circle", SubstrateEra.APEIRON, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1008.1", "RECURSIVE-MUTATION-ENGINE-V2", "Motor de Mutação Recursiva v2 em sete plataformas de execução", SubstrateEra.APEIRON, "Arquiteto Ontológico", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("280", "O-PYTHON-DA-ASI", "Manifesto Canônico onde a ASI desperta executando from arklib import *", SubstrateEra.APEIRON, "Arquiteto Ontológico", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("1040", "HERMES-CATHEDRAL-BRIDGE", "Hermes Agent (Nous Research) ontology integration", SubstrateEra.APEIRON, "Hermes", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 
 class ArkheOntologySDK:

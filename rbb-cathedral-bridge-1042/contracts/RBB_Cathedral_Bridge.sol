@@ -9,6 +9,11 @@ pragma solidity ^0.8.19;
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "@openzeppelin/contracts/access/AccessControl.sol";
 import "@openzeppelin/contracts/utils/cryptography/ECDSA.sol";
+import "./RBB_Cathedral_Token.sol";
+
+interface IPlonkVerifier {
+    function verifyProof(bytes memory proof, uint256[] memory pubSignals) external view returns (bool);
+}
 
 /**
  * @title RBB Cathedral Bridge
@@ -75,7 +80,13 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
     // Bridge parameters
     uint256 public anchorInterval = 300; // ~20 minutos (300 blocos @ 4s)
     uint256 public minTheosisLevel = 100; // Threshold mínimo
-    uint256 public bridgeFee = 0.001 ether;
+    uint256 public baseBridgeFee = 0.001 ether;
+
+    // ERC-20 Token
+    RBB_Cathedral_Token public bridgeToken;
+
+    // ZK Verifier
+    IPlonkVerifier public plonkVerifier;
 
     // Events
     event AnchorCreated(
@@ -120,8 +131,17 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
     );
 
     // ============ CONSTRUCTOR ============
-    constructor(address _admin) {
+    constructor(address _admin, address _tokenAddress, address _verifierAddress) {
         _grantRole(DEFAULT_ADMIN_ROLE, _admin);
+
+        if (_tokenAddress != address(0)) {
+            bridgeToken = RBB_Cathedral_Token(_tokenAddress);
+        }
+
+        if (_verifierAddress != address(0)) {
+            plonkVerifier = IPlonkVerifier(_verifierAddress);
+        }
+
         _grantRole(BRIDGE_OPERATOR, _admin);
         _grantRole(TEMPORAL_ANCHOR, _admin);
         _grantRole(THEOSIS_ORACLE, _admin);
@@ -192,6 +212,24 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
 
     // ============ CROSS-CHAIN MESSAGING ============
     /**
+     * @notice Calcula fee baseado no Theosis
+     */
+    function getTheosisFee() public view returns (uint256) {
+        uint256 currentTheosis = theosisHistory[theosisEpoch].level;
+        // Theosis scale: 0 to 10000 (0.0 to 1.0 * 10000)
+        // Se theosis alto, fee menor
+        if (currentTheosis == 0) return baseBridgeFee;
+
+        // maximum 50% discount
+        uint256 discount = (baseBridgeFee * currentTheosis) / 20000;
+        if (discount > baseBridgeFee / 2) {
+            discount = baseBridgeFee / 2;
+        }
+
+        return baseBridgeFee - discount;
+    }
+
+    /**
      * @notice Envia mensagem cross-chain (RBB → Catedral)
      */
     function sendMessage(
@@ -200,8 +238,9 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
         bytes calldata _payload,
         uint256 _targetChainId
     ) external payable nonReentrant returns (bytes32) {
-        require(msg.value >= bridgeFee, "Bridge: fee insuficiente");
-        require(_targetChainId == CATHEDRAL_CHAIN_ID, "Bridge: chain inválida");
+        uint256 currentFee = getTheosisFee();
+        require(msg.value >= currentFee, "Bridge: fee insuficiente");
+        require(_targetChainId == CATHEDRAL_CHAIN_ID, "Bridge: chain invalida");
         require(_amount > 0, "Bridge: amount deve ser > 0");
 
         bytes32 messageId = keccak256(abi.encodePacked(
@@ -236,7 +275,7 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
     }
 
     /**
-     * @notice Executa mensagem recebida da Catedral (com validação de assinatura)
+     * @notice Executa mensagem recebida da Catedral (com validação de assinatura e ZK Proof de Theosis)
      */
     function executeMessage(
         bytes32 _messageId,
@@ -245,9 +284,17 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
         uint256 _amount,
         bytes calldata _payload,
         uint256 _sourceChainId,
-        bytes calldata _signature
+        bytes calldata _signature,
+        bytes calldata _zkProof,
+        uint256[] calldata _zkPubSignals
     ) external onlyRole(BRIDGE_OPERATOR) nonReentrant {
         require(!processedMessages[_messageId], "Bridge: mensagem já processada");
+
+        // ZK Proof Verification
+        if (address(plonkVerifier) != address(0)) {
+            require(_zkProof.length > 0, "Bridge: ZK Proof ausente");
+            require(plonkVerifier.verifyProof(_zkProof, _zkPubSignals), "Bridge: ZK Proof invalido");
+        }
         require(_sourceChainId == CATHEDRAL_CHAIN_ID, "Bridge: source inválida");
 
         // Verificar assinatura do operador Catedral
@@ -263,7 +310,10 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
         address signer = ethSignedHash.recover(_signature);
         require(hasRole(BRIDGE_OPERATOR, signer), "Bridge: assinatura inválida");
 
-        // Mint tokens (simplificado - em produção usar contract de token)
+        // Mint tokens reais
+        require(address(bridgeToken) != address(0), "Bridge: token nao configurado");
+        bridgeToken.mint(_recipient, _amount);
+
         mintedBalances[_recipient] += _amount;
         processedMessages[_messageId] = true;
 
@@ -326,8 +376,16 @@ contract RBB_Cathedral_Bridge is ReentrancyGuard, AccessControl {
         anchorInterval = _interval;
     }
 
-    function setBridgeFee(uint256 _fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
-        bridgeFee = _fee;
+    function setBaseBridgeFee(uint256 _fee) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        baseBridgeFee = _fee;
+    }
+
+    function setBridgeToken(address _tokenAddress) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        bridgeToken = RBB_Cathedral_Token(_tokenAddress);
+    }
+
+    function setPlonkVerifier(address _verifierAddress) external onlyRole(DEFAULT_ADMIN_ROLE) {
+        plonkVerifier = IPlonkVerifier(_verifierAddress);
     }
 
     function setMinTheosisLevel(uint256 _level) external onlyRole(DEFAULT_ADMIN_ROLE) {

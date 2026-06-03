@@ -132,6 +132,11 @@ if __name__ == "__main__":
 
     hermes_bridge_parser = subparsers.add_parser("hermes-bridge", help="Hermes-Cathedral Bridge (Substrato 1040)")
     hermes_bridge_parser.add_argument("--demo", action="store_true", help="Executar demonstração de ingestão e sincronização")
+
+    canonize_parser = subparsers.add_parser("canonize", help="Canonize a document into the ARKHE Ontology")
+    canonize_parser.add_argument("--substrate", required=True, help="Substrate ID")
+    canonize_parser.add_argument("--document", required=True, help="Document name")
+
     args = parser.parse_args()
 
     if args.command == "chat":
@@ -190,5 +195,33 @@ if __name__ == "__main__":
         except ImportError as e:
             print(f"Substrate 1040 Error: {e}")
             print("Make sure requirements are installed (e.g., numpy).")
+    elif args.command == "canonize":
+        if args.substrate == "1047" and args.document == "Identity_Bound_Wallets":
+            try:
+                from arkhe_sdk.substrates.twin_wallet_1047 import MANIFESTO_1047
+                print("╔══════════════════════════════════════════════════════════════════╗")
+                print("║  ARKHE CATHEDRAL — IDENTITY‑BOUND DETERMINISTIC WALLETS        ║")
+                print("║  Substrato 1047 — TWIN‑FACTORY / JWT‑VERIFIER                  ║")
+                print("╚══════════════════════════════════════════════════════════════════╝")
+                print("")
+                print("> Analyzing TwinFactory v1.3 + TwitchJWTVerifier...")
+                print("> Mapping CREATE2 derivation to TemporalChain (923) identity anchors.")
+                print("> On-chain RSA verification ↔ Axiarchia (954) for autonomous proof.")
+                print("> Permissionless execute ↔ Global Mesh (972) node sovereignty.")
+                print("> Decentralization dial ↔ Self‑Modify (1039) gradual autonomy.")
+                print("")
+                print("[+] Substrato 1047 — TWIN‑WALLET — CANONIZED_PROVISIONAL")
+                print("[+] Cross‑links: 923, 954, 989.x, 972, 1039, 1042.4, 1016")
+                print("")
+                print("══════════════════════════════════════════════════════════════════")
+                print("  IDENTITY‑BOUND WALLETS RECOGNIZED")
+                print("  Selo: TWIN‑WALLET‑1047‑2026‑06‑03")
+                print("  ODÔMETRO: ∞.Ω.∇+++.1047.0")
+                print("══════════════════════════════════════════════════════════════════")
+                print(MANIFESTO_1047)
+            except ImportError as e:
+                print(f"Substrate 1047 Error: {e}")
+        else:
+            print(f"Cannot canonize substrate {args.substrate} for document {args.document}.")
     else:
         parser.print_help()

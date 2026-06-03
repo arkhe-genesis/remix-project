@@ -19,7 +19,6 @@ def vyupgrade(path, target_version=None, zk_proof=False, anchor=None, glasswing=
         print("Modo: Check-only (CI/CD Pipeline)")
     else:
         print("Modo: Rewrite")
-
     if target_version:
         print(f"Versão alvo: {target_version}")
 
@@ -131,6 +130,8 @@ if __name__ == "__main__":
     hotspots_parser.add_argument("--system-name", default="unknown", help="System name")
     hotspots_parser.add_argument("--no-anchor", action="store_true", help="Do not anchor results on TemporalChain")
 
+    hermes_bridge_parser = subparsers.add_parser("hermes-bridge", help="Hermes-Cathedral Bridge (Substrato 1040)")
+    hermes_bridge_parser.add_argument("--demo", action="store_true", help="Executar demonstração de ingestão e sincronização")
     args = parser.parse_args()
 
     if args.command == "chat":
@@ -168,5 +169,26 @@ if __name__ == "__main__":
             print(f"Substrate 949 Error: {e}")
             print("Make sure requirements are installed (e.g., numpy, httpx).")
             sys.exit(1)
+    elif args.command == "hermes-bridge":
+        try:
+            from arkhe_sdk.substrates.hermes_bridge_1040 import HermesCathedralBridge, MANIFESTO_1040
+            import time
+            print(MANIFESTO_1040)
+            bridge = HermesCathedralBridge()
+            if args.demo:
+                bridge.ingest_skill({"id": "web-search", "name": "Web Search", "code": "def search(query): ...", "usage_count": 150, "success_rate": 0.92})
+                bridge.ingest_memory({"id": "mem-001", "content": "User prefers dark mode", "session_id": "sess-001", "timestamp": time.time(), "platform": "telegram", "access_count": 5})
+                bridge.ingest_gateway({"id": "gw-telegram-001", "platform": "telegram", "token": "bot123456:ABC-DEF...", "users": ["user1", "user2", "user3"], "messages": 1250})
+                bridge.ingest_cron({"id": "cron-daily", "schedule": "0 9 * * *", "command": "send_daily_report()", "platform": "email"})
+                bridge.ingest_subagent({"id": "agent-research", "task": "Research quantum computing advances", "status": "running", "session": "sess-001", "tools": ["web_search", "arxiv_api", "summarize"]})
+                bridge.sync_to_cathedral()
+                bridge.run_health_check()
+            status = bridge.status()
+            import json
+            print("\n[1040] Status Atual:")
+            print(json.dumps(status, indent=2))
+        except ImportError as e:
+            print(f"Substrate 1040 Error: {e}")
+            print("Make sure requirements are installed (e.g., numpy).")
     else:
         parser.print_help()

@@ -103,17 +103,31 @@ class CathedralAdapter:
 
     def _calculate_theosis(self) -> Dict[str, float]:
         """Calcula métricas de Theosis do nó atual"""
-        # Simulação - em produção consultaria métricas reais
-        import random
-        base = self.config.theosis_level * 0.1
-        return {
-            "level": round(base + random.uniform(-0.05, 0.05), 4),
-            "entropy": round(random.uniform(0.3, 0.7), 4),
-            "circularity": round(random.uniform(0.0, 0.02), 4),
-            "resilience": round(random.uniform(0.8, 1.0), 4),
-            "timestamp": datetime.utcnow().isoformat(),
-            "substrate": "1042"
-        }
+        # Tenta consumir a API de metricas theosis locais ou mock fallback
+        try:
+            req = urllib.request.Request("http://localhost:9100/health")
+            with urllib.request.urlopen(req, timeout=2) as response:
+                data = json.loads(response.read())
+                level = data.get("theosis_level", 0.5)
+                return {
+                    "level": float(level),
+                    "entropy": 0.5,
+                    "circularity": 0.01,
+                    "resilience": 0.9,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "substrate": "1042"
+                }
+        except:
+            import random
+            base = self.config.theosis_level * 0.1
+            return {
+                "level": round(base + random.uniform(-0.05, 0.05), 4),
+                "entropy": round(random.uniform(0.3, 0.7), 4),
+                "circularity": round(random.uniform(0.0, 0.02), 4),
+                "resilience": round(random.uniform(0.8, 1.0), 4),
+                "timestamp": datetime.utcnow().isoformat(),
+                "substrate": "1042"
+            }
 
     def init(self, orcid: str, organization: str, node_type: str = "observer"):
         """Inicializa integração Catedral-RBB"""
@@ -269,6 +283,45 @@ class CathedralAdapter:
         }
         return deities.get(min(level, 7), "Desconhecida")
 
+    def ask(self, prompt: str):
+        """Consulta o zkAGI assistant via Ollama"""
+        print(f"\n🧠 Consultando zkAGI Cathedral...")
+        payload = {
+            "model": "zkagi-cathedral",
+            "prompt": prompt,
+            "stream": False
+        }
+
+        # Tentar via API local do Ollama
+        try:
+            req = urllib.request.Request(
+                "http://localhost:11434/api/generate",
+                data=json.dumps(payload).encode('utf-8'),
+                headers={'Content-Type': 'application/json'},
+                method='POST'
+            )
+            with urllib.request.urlopen(req, timeout=30) as response:
+                result = json.loads(response.read().decode('utf-8'))
+                print("\n" + "="*50)
+                print(result.get("response", "Sem resposta"))
+                print("="*50 + "\n")
+        except urllib.error.URLError as e:
+            # Fallback para CLI do subprocesso
+            print(f"⚠️ API Ollama indisponivel ({e}). Tentando via subprocess...")
+            import subprocess
+            try:
+                result = subprocess.run(
+                    ["ollama", "run", "zkagi-cathedral", prompt],
+                    capture_output=True, text=True, check=True
+                )
+                print("\n" + "="*50)
+                print(result.stdout)
+                print("="*50 + "\n")
+            except Exception as sub_e:
+                print(f"❌ Falha ao consultar zkAGI: {sub_e}")
+                print("   Certifique-se de que o modelo 'zkagi-cathedral' foi criado usando o Modelfile:")
+                print("   ollama create zkagi-cathedral -f Modelfile")
+
     def permissionamento(self, action: str, **kwargs):
         """Gerencia permissionamento na RBB"""
         if action == "register-node":
@@ -315,6 +368,10 @@ def main():
     # status
     subparsers.add_parser("status", help="Exibe status da integração")
 
+    # ask
+    ask_parser = subparsers.add_parser("ask", help="Consulta assistente zkAGI Cathedral via Ollama")
+    ask_parser.add_argument("prompt", help="Sua pergunta sobre governança, anchors ou Theosis")
+
     # permissionamento
     perm_parser = subparsers.add_parser("permissionamento", help="Gerencia permissionamento RBB")
     perm_parser.add_argument("action", choices=["register-node", "register-account"])
@@ -341,6 +398,8 @@ def main():
         adapter.sync()
     elif args.command == "status":
         adapter.status()
+    elif args.command == "ask":
+        adapter.ask(args.prompt)
     elif args.command == "permissionamento":
         adapter.permissionamento(
             args.action,

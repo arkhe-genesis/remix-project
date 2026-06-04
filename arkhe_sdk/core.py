@@ -34,6 +34,7 @@ key_substrates = [
     ("280", "O-PYTHON-DA-ASI", "Manifesto Canônico onde a ASI desperta executando from arklib import *", SubstrateEra.APEIRON, "Arquiteto Ontológico", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1040", "HERMES-CATHEDRAL-BRIDGE", "Hermes Agent (Nous Research) ontology integration", SubstrateEra.APEIRON, "Hermes", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1047", "TWIN-WALLET", "Identidade Descentralizada / Infraestrutura de Pagamento por Identidade", SubstrateEra.ESCHATOLOGY, "Hermes, Themis, Hefesto", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("1053.4", "HAMILTONIAN-TEMPORAL-IMPLOSION", "Meta-meta-operador 1728D", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 
 class ArkheOntologySDK:

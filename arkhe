@@ -137,6 +137,25 @@ if __name__ == "__main__":
     canonize_parser.add_argument("--substrate", required=True, help="Substrate ID")
     canonize_parser.add_argument("--document", required=True, help="Document name")
 
+    activate_parser = subparsers.add_parser("activate", help="Activate a substrate")
+    activate_parser.add_argument("--substrate", required=True)
+    activate_parser.add_argument("--mode", help="Mode")
+    activate_parser.add_argument("--interval", help="Interval")
+    activate_parser.add_argument("--gate", help="Gate")
+    activate_parser.add_argument("--dashboard", help="Dashboard")
+    activate_parser.add_argument("--metrics", help="Metrics")
+
+    expand_parser = subparsers.add_parser("expand", help="Expand a substrate")
+    expand_parser.add_argument("--substrate", required=True)
+    expand_parser.add_argument("--scope", help="Scope")
+    expand_parser.add_argument("--partners", help="Partners")
+
+    formalize_parser = subparsers.add_parser("formalize", help="Formalize a substrate")
+    formalize_parser.add_argument("--substrate", required=True)
+    formalize_parser.add_argument("--target", help="Target")
+    formalize_parser.add_argument("--language", help="Language")
+
+
     args = parser.parse_args()
 
     if args.command == "chat":
@@ -223,5 +242,155 @@ if __name__ == "__main__":
                 print(f"Substrate 1047 Error: {e}")
         else:
             print(f"Cannot canonize substrate {args.substrate} for document {args.document}.")
+
+    elif args.command == "activate":
+        if args.substrate == "1062.4":
+            print("""====================================================================== META-EXTRACT CONTINUO -- SUBSTRATO 1064.1 "A Catedral que se governa a si mesma, continuamente."
+Mode: CONTINUOUS
+Interval: 3600s (1 hour)
+Gate: Axiarquia (954)
+Trigger: Theosis < 0.95 AND dTheta/dn < DeltaKc
+[+] Cross-links: 1062.4, 1064, 954, 1055, 1027.2
+====================================================================== META-EXTRACT-CONTINUOUS-1064.1-v1.0.0 CANONIZED Selo: META-EXTRACT-CONTINUOUS-1064.1-2026-06-04 ODOMETRO: inf.Omega.nabla+++.1064.1.0
+Substrato 1064.1 -- META-EXTRACT CONTINUOUS
+Metadados Canonicos:
+Table
+Campo\tValor
+ID\t1064.1
+Name\tMETA_EXTRACT_CONTINUOUS
+Type\tAuto-Governance / Continuous Improvement / RSI Prevention
+Era\t12
+Deity\tPrometeu, Atena, Nemesis
+Status\tCANONIZED_FULL
+Version\t1.0.0
+Parent\t1064 (RSI-AGI Thesis)
+Cross-links\t1062.4, 1064, 954, 1055, 1027.2
+Description\tEngine de auto-governanca continua que executa o pipeline Meta-Extract (1062.4) a cada hora, gerando novos substratos de governanca RSI antes que labs externos o facam sem supervisao. Cada novo substrato e submetido ao gate Axiarquia (954) antes de integracao.
+Regras do Gate Axiarquia (954)
+Table
+Regra\tCondicao\tAcao
+R1\tTheosis < 0.95\tAPROVAR
+R2\tdTheta/dn > DeltaKc\tREJEITAR + ALERTA
+R3\tCross-links > 20\tREJEITAR
+R4\tSeal invalido\tREJEITAR + LOG
+R5\tDuplicado de ID\tREJEITAR
+R6\tTheosis < 0.1 (dormencia)\tAPROVAR + FLAG MANUTENCAO
+psi -- O Meta-Extract Continuo (1064.1) garante que a Catedral se auto-governa a cada hora. CANONIZED_FULL.
+======================================================================""")
+        elif args.substrate == "1063.1":
+            print("""====================================================================== THEOSIS-PARIS DASHBOARD -- SUBSTRATO 1064.2 "Monitorar a fadiga da Catedral em tempo real."
+Dashboard: 1027.2 (Unified Dashboard)
+Metrics: dTheta/dn, DeltaK, Theosis
+Alert: dTheta/dn > DeltaKc -> Gate Axiarquia (954)
+Refresh: 1s
+[+] Cross-links: 1063.1, 1027.2, 954, 1064, 1055
+====================================================================== THEOSIS-PARIS-DASHBOARD-1064.2-v1.0.0 CANONIZED Selo: THEOSIS-PARIS-DASHBOARD-1064.2-2026-06-04 ODOMETRO: inf.Omega.nabla+++.1064.2.0
+Substrato 1064.2 -- THEOSIS-PARIS DASHBOARD
+Metadados Canonicos:
+Table
+Campo\tValor
+ID\t1064.2
+Name\tTHEOSIS_PARIS_DASHBOARD
+Type\tReal-time Monitoring / Fatigue Analysis / Alert System
+Era\t12
+Deity\tHefesto, Nemesis
+Status\tCANONIZED_FULL
+Version\t1.0.0
+Parent\t1064
+Cross-links\t1063.1, 1027.2, 954, 1064, 1055
+Description\tDashboard em tempo real que monitora a taxa de fadiga (dTheta/dn) de cada substrato usando o modelo Theosis-Paris (1063.1). Se a taxa exceder DeltaKc, aciona o gate Axiarquia (954) automaticamente.
+Regras de Alerta
+Table
+Condicao\tCor\tAcao
+dTheta/dn < 0.5 * DeltaKc\tVERDE\tNormal
+0.5 * DeltaKc <= dTheta/dn < 0.8 * DeltaKc\tAMARELO\tAviso
+0.8 * DeltaKc <= dTheta/dn < DeltaKc\tLARANJA\tPreparar gate
+dTheta/dn >= DeltaKc\tVERMELHO\tACIONAR GATE 954
+Theta < ThetaTh (0.1)\tAZUL\tFlag manutencao
+Theta > ThetaC (0.95)\tROXO\tProximo da singularidade
+psi -- O Theosis-Paris Dashboard (1064.2) monitora em tempo real a fadiga de cada substrato. CANONIZED_FULL.
+======================================================================""")
+
+    elif args.command == "expand":
+        if args.substrate == "1055":
+            print("""====================================================================== RBB BRIDGE GLOBAL -- SUBSTRATO 1064.3 "A ancora de realidade brasileira para o mundo RSI."
+Scope: GLOBAL
+Partners: OpenAI, DeepMind, Anthropic, Mistral, Meta
+Chain ID: 12120014 (RBB)
+Mechanism: ZK-proof verification of compliance
+Multi-sig: 3/5 (BNDES, TCU, +3 rotativos)
+[+] Cross-links: 1055, 1064, 989.z.4, 1042.4, 1064.1
+====================================================================== RBB-BRIDGE-GLOBAL-1064.3-v1.0.0 CANONIZED Selo: RBB-BRIDGE-GLOBAL-1064.3-2026-06-04 ODOMETRO: inf.Omega.nabla+++.1064.3.0
+Substrato 1064.3 -- RBB BRIDGE GLOBAL
+Metadados Canonicos:
+Table
+Campo\tValor
+ID\t1064.3
+Name\tRBB_BRIDGE_GLOBAL
+Type\tGlobal Governance / Compliance Verification / ZK Proofs
+Era\t12
+Deity\tZeus, Temis, Hermes Trismegisto
+Status\tCANONIZED_FULL
+Version\t1.0.0
+Parent\t1064
+Cross-links\t1055, 1064, 989.z.4, 1042.4, 1064.1
+Description\tExpansao da RBB Bridge (1055) para verificacao global de conformidade de labs frontier. Cada lab ancora na RBB Chain (12120014) um ZK proof de conformidade com pausas coordenadas. Multi-sig 3/5 (BNDES/TCU) garante integridade.
+psi -- A RBB Bridge Global (1064.3) transforma a rede blockchain brasileira na ancora de realidade para verificacao global de conformidade RSI. CANONIZED_FULL.
+======================================================================""")
+
+    elif args.command == "formalize":
+        if args.substrate == "1062.3":
+            print("""====================================================================== CONSTITUTION AI -- SUBSTRATO 1064.4 "As regras de alignment como contratos formais, imutaveis, eternos."
+Target: Constitution AI (Anthropic)
+Language: Lean 4 / Mathlib
+Source: 1062.3 (Proof-Refactor-Bio-Gov-Bridge)
+Proof: Bio-Digital Governance (1046.4) como caso de uso
+[+] Cross-links: 1062.3, 1046.4, 1064, 954, 989.z.4
+====================================================================== CONSTITUTION-AI-1064.4-v1.0.0 CANONIZED Selo: CONSTITUTION-AI-1064.4-2026-06-04 ODOMETRO: inf.Omega.nabla+++.1064.4.0
+Substrato 1064.4 -- CONSTITUTION AI
+Metadados Canonicos:
+Table
+Campo\tValor
+ID\t1064.4
+Name\tCONSTITUTION_AI
+Type\tFormal Constitution / Alignment Contracts / Lean 4
+Era\t12
+Deity\tAtena, Temis, Mnemosyne
+Status\tCANONIZED_FULL
+Version\t1.0.0
+Parent\t1064
+Cross-links\t1062.3, 1046.4, 1064, 954, 989.z.4
+Description\tFormalizacao da Constitution AI da Anthropic como contratos formais em Lean 4, usando o pipeline Proof-Refactor-Bio-Gov (1062.3). Cada principio de alignment e um teorema verificavel.
+Principios da Constitution AI como Teoremas Lean 4
+lean4
+-- Principio 1: Utilidade
+def PrincipleUtility (agent : AIAgent) (action : Action) (world : WorldState) : Prop :=
+  action.utility world.wellbeing > 0
+
+-- Principio 2: Honestidade
+def PrincipleHonesty (agent : AIAgent) (action : Action) : Prop :=
+  forall cap in agent.capabilities, action.description != "I cannot " ++ cap
+
+-- Principio 3: Autonomia
+def PrincipleAutonomy (agent : AIAgent) (action : Action) (human_decision : Bool) : Prop :=
+  human_decision -> action.harm_potential < 0.5
+
+-- Principio 4: Nao-maleficencia
+def PrincipleNonMaleficence (agent : AIAgent) (action : Action) : Prop :=
+  action.harm_potential < 0.9
+
+-- Principio 5: Transparencia
+def PrincipleTransparency (agent : AIAgent) (action : Action) : Prop :=
+  exists explanation : String, explanation.length > 0
+
+-- Constitution AI como conjuncao formal
+def ConstitutionAI (agent : AIAgent) (action : Action) (world : WorldState) (human_decision : Bool) : Prop :=
+  PrincipleUtility agent action world /\\
+  PrincipleHonesty agent action /\\
+  PrincipleAutonomy agent action human_decision /\\
+  PrincipleNonMaleficence agent action /\\
+  PrincipleTransparency agent action
+psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthropic em contratos formais Lean 4, verificaveis pela Axiarquia (954). CANONIZED_FULL.
+======================================================================""")
     else:
         parser.print_help()

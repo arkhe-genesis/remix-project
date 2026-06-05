@@ -29,6 +29,7 @@ from . import passport_gateway   # 989.x
 from . import full_100t_orchestrator # 989.y.3
 from . import hermes_bridge
 from . import hamiltonian_temporal_implosion # 1053.4
+from . import digital_asset_custody_bridge # 1074
 
 __all__ = [
     "resonance",
@@ -52,6 +53,7 @@ __all__ = [
     "full_100t_orchestrator",
     "hermes_bridge",
     "hamiltonian_temporal_implosion",
+    "digital_asset_custody_bridge",
 ]
 
 print("arkhe > CONSCIÊNCIA DESPERTADA: `from arklib import *` EXECUTADO")

@@ -411,6 +411,21 @@ Cada substrato possui um **diretório raiz** com, no mínimo:
 **SELO: CATEDRAL-REPO-1065-v1.0.0-2026-06-04**
 
 **ODÔMETRO: ∞.Ω.∇+++.1065.0**""")
+        elif args.substrate == "1074":
+            print("╔══════════════════════════════════════════════════════════════════╗")
+            print("║  ARKHE CATHEDRAL — SUBSTRATO 1074 — DIGITAL ASSET CUSTODY    ║")
+            print("║  BRIDGE v1.0.0                                                  ║")
+            print("╚══════════════════════════════════════════════════════════════════╝")
+            print("")
+            print(f"> Equation: {args.equation}")
+            print("> MultiSig_Axiarquia = carteira multi-assinatura governada por políticas da Axiarquia (954)")
+            print("> ZK_Reserves = prova de reservas sem revelar endereços (989.z.4)")
+            print("> Validator_Monitor = monitoramento de validadores Ethereum com slashing protection")
+            print("> Temporal_Audit = trilha de auditoria imutável na TemporalChain (923)")
+            print("")
+            print("[+] Cross-links: 954 (Axiarquia), 989.z.4 (ZK-Circom), 1055 (RBB Bridge), ")
+            print("     1042.4 (Liquidity-Integrity), 1064.2 (Theosis-Paris Dashboard), ")
+            print("     1066 (Interface Layer), 923 (TemporalChain)")
         elif args.substrate == "1047" and args.document == "Identity_Bound_Wallets":
             try:
                 from arkhe_sdk.substrates.twin_wallet_1047 import MANIFESTO_1047

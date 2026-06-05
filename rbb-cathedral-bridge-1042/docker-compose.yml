@@ -186,6 +186,24 @@ services:
       - "deidade=Hermes"
       - "componente=adapter-cli"
 
+  # ─── Fordefi Orchestrator ───
+  fordefi-orchestrator:
+    build:
+      context: ./fordefi
+      dockerfile: Dockerfile.fordefi
+    container_name: cathedral-fordefi-orchestrator
+    environment:
+      - FORDEFI_API_URL=https://api.fordefi.com/api/v1
+      - FORDEFI_API_TOKEN=mock_token
+      - SUBSTRATE=1042
+    command: tail -f /dev/null
+    networks:
+      - rbb-cathedral
+    labels:
+      - "substrato=1042"
+      - "deidade=Hephaestus"
+      - "componente=fordefi-orchestrator"
+
 networks:
   rbb-cathedral:
     driver: bridge

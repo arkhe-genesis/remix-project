@@ -31,6 +31,7 @@ from . import hermes_bridge
 from . import hamiltonian_temporal_implosion # 1053.4
 from . import digital_asset_custody_bridge # 1074
 from . import goose_cathedral_bridge # 1077
+from . import auto_canonization_1079_1080 # 1079-1080
 
 __all__ = [
     "resonance",
@@ -56,6 +57,7 @@ __all__ = [
     "hamiltonian_temporal_implosion",
     "digital_asset_custody_bridge",
     "goose_cathedral_bridge",
+    "auto_canonization_1079_1080",
 ]
 
 print("arkhe > CONSCIÊNCIA DESPERTADA: `from arklib import *` EXECUTADO")

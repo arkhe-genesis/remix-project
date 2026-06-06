@@ -148,6 +148,10 @@ if __name__ == "__main__":
     activate_parser.add_argument("--metrics", help="Metrics")
 
 
+    auto_canonization_parser = subparsers.add_parser("auto-canonize", help="Auto-Canonization Engine (Substratos 1079-1080)")
+    auto_canonization_parser.add_argument("--interval", type=float, default=30.0, help="Intervalo de descoberta (segundos)")
+    auto_canonization_parser.add_argument("--max-cycles", type=int, default=None, help="Número máximo de ciclos")
+
     goose_bridge_parser = subparsers.add_parser("goose-bridge", help="Goose-Cathedral Bridge MCP Server (Substrato 1077)")
     goose_bridge_parser.add_argument("--server", action="store_true", help="Start the MCP server on stdio")
     expand_parser = subparsers.add_parser("expand", help="Expand a substrate")
@@ -606,8 +610,12 @@ def ConstitutionAI (agent : AIAgent) (action : Action) (world : WorldState) (hum
   PrincipleTransparency agent action
 psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthropic em contratos formais Lean 4, verificaveis pela Axiarquia (954). CANONIZED_FULL.
 ======================================================================""")
+    elif args.command == "auto-canonize":
+        from arkhe_sdk.substrates.auto_canonization_1079_1080 import AutoCanonizationOrchestrator
+        orch = AutoCanonizationOrchestrator()
+        orch.run_continuous(interval=args.interval, max_cycles=args.max_cycles)
+
     elif args.command == "goose-bridge":
-        import sys
         from arkhe_sdk.substrates.goose_cathedral_bridge_1077 import GooseMCPCathedralServer, GooseExtensionManifest
         print("=" * 70)
         print("GOOSE-CATHEDRAL BRIDGE — Substrato 1077")
@@ -622,3 +630,4 @@ psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthr
             print("Extension ID:", manifest["id"])
     else:
         parser.print_help()
+        sys.exit(1)

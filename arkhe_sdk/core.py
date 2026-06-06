@@ -36,6 +36,7 @@ key_substrates = [
     ("1047", "TWIN-WALLET", "Identidade Descentralizada / Infraestrutura de Pagamento por Identidade", SubstrateEra.ESCHATOLOGY, "Hermes, Themis, Hefesto", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1074", "DIGITAL-ASSET-CUSTODY-BRIDGE", "Custody Governance / Multi-Sig / ZK-Proof of Reserves / Validator Management", SubstrateEra.ESCHATOLOGY, "Plutão, Temis, Hefesto", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1053.4", "HAMILTONIAN-TEMPORAL-IMPLOSION", "Meta-meta-operador 1728D", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("1077", "GOOSE-CATHEDRAL-BRIDGE", "Integração nativa entre GOOSE e ecossistema Cathedral ARKHE via Model Context Protocol (MCP)", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 
 class ArkheOntologySDK:

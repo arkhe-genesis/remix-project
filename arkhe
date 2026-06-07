@@ -158,7 +158,9 @@ if __name__ == "__main__":
     drops_bridge_parser = subparsers.add_parser("drops-bridge", help="Drops Database Bridge (Substrato 1086)")
     network_opt_parser = subparsers.add_parser("network-optimization", help="Complex Network Optimization Engine (Substrato 1088)")
 
-    orch_rsi_parser = subparsers.add_parser("orchestrator-rsi", help="ORCHESTRATOR RSI LOOP (Substrato 1076.3)")
+    network_opt_parser = subparsers.add_parser("network-opt", help="Complex Network Optimization Engine (Substrato 1088)")
+
+    dynamic_sys_id_parser = subparsers.add_parser("dynamic-system-id", help="Dynamic System Identification Engine (Substrato 1089)")
 
     goose_bridge_parser = subparsers.add_parser("goose-bridge", help="Goose-Cathedral Bridge MCP Server (Substrato 1077)")
     goose_bridge_parser.add_argument("--server", action="store_true", help="Start the MCP server on stdio")
@@ -656,6 +658,14 @@ psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthr
         print(f"  DKES-NTT Kernels: {dashboard['typed_kernel']['total_kernels']}")
         print(f"  Lean 4 Lemmas: {dashboard['proof_refactor']['total_lemmas']}")
         print(f"  WormGraph Nodes: {dashboard['wormgraph']['nodes']}")
+
+    elif args.command == "network-opt":
+        from arkhe_sdk.substrates.complex_network_optimization_1088 import run_optimization
+        run_optimization()
+
+    elif args.command == "dynamic-system-id":
+        from arkhe_sdk.substrates.dynamic_system_identification_1089 import run_identification
+        run_identification()
 
     elif args.command == "goose-bridge":
         from arkhe_sdk.substrates.goose_cathedral_bridge_1077 import GooseMCPCathedralServer, GooseExtensionManifest

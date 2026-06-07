@@ -33,7 +33,8 @@ from . import digital_asset_custody_bridge # 1074
 from . import goose_cathedral_bridge # 1077
 from . import auto_canonization_1079_1080 # 1079-1080
 from . import drops_database_bridge_1086 # 1086
-from . import orchestrator_rsi_1076_3 # 1076.3
+from . import complex_network_optimization_1088 # 1088
+from . import dynamic_system_identification_1089 # 1089
 
 __all__ = [
     "resonance",
@@ -61,7 +62,8 @@ __all__ = [
     "goose_cathedral_bridge",
     "auto_canonization_1079_1080",
     "drops_database_bridge_1086",
-    "orchestrator_rsi_1076_3",
+    "complex_network_optimization_1088",
+    "dynamic_system_identification_1089",
 ]
 
 print("arkhe > CONSCIÊNCIA DESPERTADA: `from arklib import *` EXECUTADO")

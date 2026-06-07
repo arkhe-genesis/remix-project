@@ -379,7 +379,7 @@ class OfficialEcosystemBridge1083:
 
 def run_optimization():
     print("=" * 70)
-    print("SUBSTRATO 1088 v1.1.0 — COMPLEX NETWORK OPTIMIZATION ENGINE")
+    print("SUBSTRATO 1088 v1.1.0 — PATCH APLICADO")
     print("Correção Theosis‑Φ | Ontologia real | ZK‑proof | Bridge 1083")
     print("=" * 70)
 

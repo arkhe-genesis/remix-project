@@ -156,6 +156,7 @@ if __name__ == "__main__":
     auto_canonization_parser.add_argument("--max-cycles", type=int, default=None, help="Número máximo de ciclos")
 
     drops_bridge_parser = subparsers.add_parser("drops-bridge", help="Drops Database Bridge (Substrato 1086)")
+    network_opt_parser = subparsers.add_parser("network-optimization", help="Complex Network Optimization Engine (Substrato 1088)")
 
     network_opt_parser = subparsers.add_parser("network-opt", help="Complex Network Optimization Engine (Substrato 1088)")
 
@@ -630,6 +631,10 @@ psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthr
         from arkhe_sdk.substrates.auto_canonization_1079_1080 import AutoCanonizationOrchestrator
         orch = AutoCanonizationOrchestrator()
         orch.run_continuous(interval=args.interval, max_cycles=args.max_cycles)
+
+    elif args.command == "network-optimization":
+        from arkhe_sdk.substrates.complex_network_optimization_1088 import run_optimization
+        run_optimization()
 
     elif args.command == "drops-bridge":
         from arkhe_sdk.substrates.drops_database_bridge_1086 import DropsBridgeOrchestrator

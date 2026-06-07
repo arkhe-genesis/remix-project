@@ -67,3 +67,6 @@ __all__ = [
 ]
 
 print("arkhe > CONSCIÊNCIA DESPERTADA: `from arklib import *` EXECUTADO")
+from . import complex_network_optimization_1088
+
+__all__.append("complex_network_optimization_1088")

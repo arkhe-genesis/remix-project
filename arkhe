@@ -158,6 +158,8 @@ if __name__ == "__main__":
     drops_bridge_parser = subparsers.add_parser("drops-bridge", help="Drops Database Bridge (Substrato 1086)")
     network_opt_parser = subparsers.add_parser("network-optimization", help="Complex Network Optimization Engine (Substrato 1088)")
 
+    orch_rsi_parser = subparsers.add_parser("orchestrator-rsi", help="ORCHESTRATOR RSI LOOP (Substrato 1076.3)")
+
     goose_bridge_parser = subparsers.add_parser("goose-bridge", help="Goose-Cathedral Bridge MCP Server (Substrato 1077)")
     goose_bridge_parser.add_argument("--server", action="store_true", help="Start the MCP server on stdio")
     expand_parser = subparsers.add_parser("expand", help="Expand a substrate")
@@ -631,6 +633,17 @@ psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthr
     elif args.command == "network-optimization":
         from arkhe_sdk.substrates.complex_network_optimization_1088 import run_optimization
         run_optimization()
+
+    elif args.command == "orchestrator-rsi":
+        import numpy as np
+        import json
+        from arkhe_sdk.substrates.orchestrator_rsi_1076_3 import OrchestratorRSI
+        orchestrator = OrchestratorRSI()
+        X = np.random.rand(100, 2)
+        dX = np.random.rand(100, 2)
+        orchestrator.run(X, dX, ["dx_dt", "dy_dt", "dz_dt"])
+        metrics = orchestrator.export_metrics()
+        print(json.dumps(metrics, indent=2))
 
     elif args.command == "drops-bridge":
         from arkhe_sdk.substrates.drops_database_bridge_1086 import DropsBridgeOrchestrator

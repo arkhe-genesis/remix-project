@@ -6,6 +6,7 @@ Substrato 889.5 • ARKHE Cathedral
 
 import argparse
 import json
+from arkhe_sdk.substrates.moltbook_identity_bridge_1084 import MoltbookBridgeOrchestrator
 import urllib.request
 import urllib.error
 import sys
@@ -147,6 +148,8 @@ if __name__ == "__main__":
     activate_parser.add_argument("--dashboard", help="Dashboard")
     activate_parser.add_argument("--metrics", help="Metrics")
 
+
+    moltbook_parser = subparsers.add_parser("moltbook-bridge", help="Moltbook Identity Bridge (Substrato 1084)")
 
     auto_canonization_parser = subparsers.add_parser("auto-canonize", help="Auto-Canonization Engine (Substratos 1079-1080)")
     auto_canonization_parser.add_argument("--interval", type=float, default=30.0, help="Intervalo de descoberta (segundos)")
@@ -610,6 +613,13 @@ def ConstitutionAI (agent : AIAgent) (action : Action) (world : WorldState) (hum
   PrincipleTransparency agent action
 psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthropic em contratos formais Lean 4, verificaveis pela Axiarquia (954). CANONIZED_FULL.
 ======================================================================""")
+    elif args.command == "moltbook-bridge":
+        print("║  ARKHE CATHEDRAL — SUBSTRATO 1084 — MOLTBOOK IDENTITY BRIDGE    ║")
+        orch = MoltbookBridgeOrchestrator(app_key="cli_demo", domain="cathedral-arkhe.org")
+        dash = orch.get_dashboard()
+        print(f"Selo: {dash['seal']}")
+        print(f"Total Onboarded: {dash['total_onboarded']}")
+
     elif args.command == "auto-canonize":
         from arkhe_sdk.substrates.auto_canonization_1079_1080 import AutoCanonizationOrchestrator
         orch = AutoCanonizationOrchestrator()

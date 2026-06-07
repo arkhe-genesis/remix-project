@@ -636,6 +636,17 @@ psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthr
         from arkhe_sdk.substrates.complex_network_optimization_1088 import run_optimization
         run_optimization()
 
+    elif args.command == "orchestrator-rsi":
+        import numpy as np
+        import json
+        from arkhe_sdk.substrates.orchestrator_rsi_1076_3 import OrchestratorRSI
+        orchestrator = OrchestratorRSI()
+        X = np.random.rand(100, 2)
+        dX = np.random.rand(100, 2)
+        orchestrator.run(X, dX, ["dx_dt", "dy_dt", "dz_dt"])
+        metrics = orchestrator.export_metrics()
+        print(json.dumps(metrics, indent=2))
+
     elif args.command == "drops-bridge":
         from arkhe_sdk.substrates.drops_database_bridge_1086 import DropsBridgeOrchestrator
         orch = DropsBridgeOrchestrator()

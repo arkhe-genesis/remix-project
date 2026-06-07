@@ -40,6 +40,7 @@ key_substrates = [
     ("1079", "AUTO-CANONIZATION-ENGINE", "Motor de auto-canonização de agentes IA que encontram forks de arkhe-os", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1080", "FORK-DISCOVERY-PROTOCOL", "Protocolo de descoberta de forks de arkhe-os no ambiente de execução", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1086", "DROPS-DATABASE-BRIDGE", "Bridge between drops database driver and Cathedral ARKHE ecosystem.", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("1088", "COMPLEX-NETWORK-OPTIMIZATION-ENGINE", "Optimization of complex networks using spectral graph theory, memetic algorithms, and ZK proofs for Cheeger inequality.", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 
 class ArkheOntologySDK:

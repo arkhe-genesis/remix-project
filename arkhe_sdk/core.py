@@ -42,6 +42,7 @@ key_substrates = [
     ("1086", "DROPS-DATABASE-BRIDGE", "Bridge between drops database driver and Cathedral ARKHE ecosystem.", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1088", "COMPLEX-NETWORK-OPTIMIZATION-ENGINE", "Optimization of complex networks using spectral graph theory, memetic algorithms, and ZK proofs for Cheeger inequality.", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1076.3", "ORCHESTRATOR-RSI-LOOP", "Fecha o ciclo RSI: SINDy(1089) → Proof-Refactor(1062) → CRISPR(1046.2) → ClawProof(1085) → Deploy → S'", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("1101", "CATHEDRAL-QUBES-INTEGRATION", "Cathedral AGI running over Qubes OS 4.3 using Split-Brain Architecture", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 
 class ArkheOntologySDK:

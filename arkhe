@@ -167,6 +167,8 @@ if __name__ == "__main__":
 
     qubes_integration_parser = subparsers.add_parser("qubes-integration", help="Qubes OS Integration (Substrato 1101)")
 
+    btfs_storage_parser = subparsers.add_parser("btfs-storage", help="BTFS DePIN Storage Integration (Substrato 1103)")
+
     expand_parser = subparsers.add_parser("expand", help="Expand a substrate")
     expand_parser.add_argument("--substrate", required=True)
     expand_parser.add_argument("--scope", help="Scope")
@@ -690,6 +692,11 @@ psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthr
         orchestrator = QubesIntegrationOrchestrator(mode="test")
         print(orchestrator.get_manifesto())
         print(f"Loaded Qubes: {orchestrator.list_qubes()}")
+    elif args.command == "btfs-storage":
+        from arkhe_sdk.substrates.btfs_depin_storage_1103 import BTFSIntegrationOrchestrator
+        print("BTFS-DEPIN-STORAGE — Substrato 1103")
+        orchestrator = BTFSIntegrationOrchestrator(mode="test")
+        print(orchestrator.get_manifesto())
     else:
         parser.print_help()
         sys.exit(1)

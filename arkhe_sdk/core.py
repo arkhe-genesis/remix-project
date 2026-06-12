@@ -43,6 +43,7 @@ key_substrates = [
     ("1088", "COMPLEX-NETWORK-OPTIMIZATION-ENGINE", "Optimization of complex networks using spectral graph theory, memetic algorithms, and ZK proofs for Cheeger inequality.", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1076.3", "ORCHESTRATOR-RSI-LOOP", "Fecha o ciclo RSI: SINDy(1089) → Proof-Refactor(1062) → CRISPR(1046.2) → ClawProof(1085) → Deploy → S'", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("1101", "CATHEDRAL-QUBES-INTEGRATION", "Cathedral AGI running over Qubes OS 4.3 using Split-Brain Architecture", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
+    ("1103", "BTFS-DEPIN-STORAGE", "BitTorrent File System (BTFS) integration with Cathedral AGI over Qubes OS to provide a sovereign, economically-incentivized distributed storage backend.", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
 ]
 
 class ArkheOntologySDK:

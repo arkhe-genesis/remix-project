@@ -164,6 +164,9 @@ if __name__ == "__main__":
 
     goose_bridge_parser = subparsers.add_parser("goose-bridge", help="Goose-Cathedral Bridge MCP Server (Substrato 1077)")
     goose_bridge_parser.add_argument("--server", action="store_true", help="Start the MCP server on stdio")
+
+    qubes_integration_parser = subparsers.add_parser("qubes-integration", help="Qubes OS Integration (Substrato 1101)")
+
     expand_parser = subparsers.add_parser("expand", help="Expand a substrate")
     expand_parser.add_argument("--substrate", required=True)
     expand_parser.add_argument("--scope", help="Scope")
@@ -680,6 +683,13 @@ psi -- A Constitution AI (1064.4) transforma os principios de alignment da Anthr
             print("Run with --server to start the MCP server.")
             manifest = GooseExtensionManifest.generate()
             print("Extension ID:", manifest["id"])
+
+    elif args.command == "qubes-integration":
+        from arkhe_sdk.substrates.qubes_integration_1101 import QubesIntegrationOrchestrator
+        print("CATHEDRAL-QUBES-INTEGRATION — Substrato 1101")
+        orchestrator = QubesIntegrationOrchestrator(mode="test")
+        print(orchestrator.get_manifesto())
+        print(f"Loaded Qubes: {orchestrator.list_qubes()}")
     else:
         parser.print_help()
         sys.exit(1)

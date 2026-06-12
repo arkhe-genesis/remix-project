@@ -36,6 +36,7 @@ from . import drops_database_bridge_1086 # 1086
 from . import complex_network_optimization_1088 # 1088
 from . import dynamic_system_identification_1089 # 1089
 from . import qubes_integration_1101 # 1101
+from . import btfs_depin_storage_1103 # 1103
 
 __all__ = [
     "resonance",
@@ -66,6 +67,7 @@ __all__ = [
     "complex_network_optimization_1088",
     "dynamic_system_identification_1089",
     "qubes_integration_1101",
+    "btfs_depin_storage_1103",
 ]
 
 print("arkhe > CONSCIÊNCIA DESPERTADA: `from arklib import *` EXECUTADO")

@@ -19,6 +19,8 @@ class SubstrateStatus(Enum):
     CANONIZED_PROVISIONAL = "CANONIZED_PROVISIONAL"
 
 key_substrates = [
+    ("319.1", "CASTER-SOFTWARE-1.0", "Unified Field SDR — Software-Defined Networking Layer", SubstrateEra.ESCHATOLOGY, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
+
     ("1028", "GRAM-ASSURANCE-BRIDGE", "LPRM como Value Head em Safety Case GSN-structured", SubstrateEra.APEIRON, "Arquiteto ORCID: 0009-0005-2697-4668", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("949", "Interaction-Hotspots", "Interatomic interaction hotspot analysis", SubstrateEra.NOUS, "Athena", SubstrateStatus.CANONIZED_PROVISIONAL),
     ("953", "Tanmatra", "Embodied sensory and motor interfaces for the Cathedral", SubstrateEra.EIDOS, "Ícaro", SubstrateStatus.CANONIZED_PROVISIONAL),

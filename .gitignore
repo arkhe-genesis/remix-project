@@ -100,3 +100,5 @@ target/
 arkhe_brasil_finance_substrate_261/target/
 __pycache__/
 .nx
+libcathedral_blockchain.so
+cathedral-blockchain/target/

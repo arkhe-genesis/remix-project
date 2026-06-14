@@ -10,11 +10,8 @@ import time
 import uuid
 from typing import Dict, Optional
 
-try:
-    import aiohttp
-    HAS_AIOHTTP = True
-except ImportError:
-    HAS_AIOHTTP = False
+import aiohttp
+HAS_AIOHTTP = True
 
 log = logging.getLogger("cathedral.v14.client")
 

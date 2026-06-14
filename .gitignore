@@ -102,3 +102,8 @@ __pycache__/
 .nx
 libcathedral_blockchain.so
 cathedral-blockchain/target/
+venv
+*.pem
+*.pt
+*.bin
+*.jsonl

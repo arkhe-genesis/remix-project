@@ -10,8 +10,28 @@ from typing import List
 from dataclasses import dataclass, field
 from .world_model_personality import RSSMWithPersonality
 from .grounded_pipeline import BiographicalMemory
+from .trading.zeroex_trading_module import ZeroExTradingModule
 
 logger = logging.getLogger("cathedral.fast_brain")
+
+class ZvecMemoryWrapper:
+    def __init__(self, fast_brain):
+        self.fast_brain = fast_brain
+
+    def store_transaction_embedding(self, embedding, result):
+        if self.fast_brain.index is not None:
+            state_vector = np.array(embedding, dtype=np.float32)
+            bio_meta = BiographicalMemory.create_biographical_entry(
+                state_vector=state_vector,
+                metadata={"tx_result": result}
+            )
+            self.fast_brain.index.add_items(state_vector, self.fast_brain._mem_count)
+            self.fast_brain.memories.append(bio_meta)
+            self.fast_brain._mem_count += 1
+            if self.fast_brain._mem_count % 50 == 0:
+                import os
+                os.makedirs(self.fast_brain.mem_data_dir, exist_ok=True)
+                self.fast_brain.index.save_index(os.path.join(self.fast_brain.mem_data_dir, "episodic_index.bin"))
 HAS_V16 = False
 
 @dataclass
@@ -70,6 +90,15 @@ class FastBrain:
             logger.warning(f"Memória HNSW indisponível: {e}")
 
         self.last_action = torch.zeros(1, self.action_dim, device=self.device)
+
+        # --- INICIALIZAÇÃO DO MÓDULO DE TRADING 0x ---
+        self.trading_module = ZeroExTradingModule(
+            api_key="mock_key",
+            chain_id=137,
+            wallet_address="0xMock",
+            zvec_memory=ZvecMemoryWrapper(self)
+        )
+        self.trading_module.world_model = self.world_model
 
     def cycle(self, observation=None, reward: float = 0.0) -> FastBrainState:
         t0 = time.perf_counter()

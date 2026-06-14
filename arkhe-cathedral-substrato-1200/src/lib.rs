@@ -1,5 +1,6 @@
 pub mod inference {
     pub mod federated_router;
+    pub mod pattern_engine;
 
     pub mod engine {
         #[derive(Debug, Clone)]

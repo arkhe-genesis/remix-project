@@ -28,6 +28,13 @@ jobs:
     - name: Axiarchy Verification
       run: |
         python -c "print('Axiarchy Verification passed.')"
+    - name: Security scan with zkHydra
+      run: |
+        python -m cathedral.zkhydra_gateway analyze \
+          --circuit tests/circuit.circom \
+          --tools all \
+          --fail-on-finding \
+          --output security-report.json
     - name: Test
       run: |
         PYTHONPATH=. pytest tests/

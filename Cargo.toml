@@ -1,5 +1,7 @@
 [workspace]
 members = [
+    "cathedral-embodied-no_std",
+    "cathedral-napi",
     "aegis-plausible-reasoner",
     "aegis",
     "cathedral-core"

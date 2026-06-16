@@ -1,0 +1,9 @@
+[workspace]
+members = [
+    "aegis-plausible-reasoner",
+    "aegis",
+    "cathedral-core"
+]
+
+[workspace.dependencies]
+aegis-plausible-reasoner = { path = "aegis-plausible-reasoner" }

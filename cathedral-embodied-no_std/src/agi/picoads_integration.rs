@@ -1,4 +1,5 @@
-use crate::agi::{AegisEvolution, ContextEmbedding};
+use crate::agi::aegis_evolution::AegisEvolution;
+use crate::context::ContextEmbedding;
 use crate::policy::ZkMemoryProofPolicy;
 use crate::picoads::PicoAdsClient;  // assume a client exists
 
@@ -39,7 +40,7 @@ impl AegisEvolution {
 
         // Generate memory proof if required
         let _memory_commitment = if require_proof {
-            match crate::dla::prove_memory_state() {
+            match crate::dla::prove_memory_state().await {
                 Ok(proof) => Some(proof.merkle_root),
                 Err(e) => {
                     eprintln!("Memory proof failed: {}", e);

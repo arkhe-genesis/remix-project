@@ -1,3 +1,6 @@
-pub mod config_loader;
-pub mod multi_agent;
-pub mod consensus_workflow;
+pub mod sandbox;
+pub mod context;
+pub mod identity_derivation;
+pub mod subagent_spawner;
+pub mod subagent_communication;
+pub mod subagent_persistence;

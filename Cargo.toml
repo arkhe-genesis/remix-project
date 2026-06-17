@@ -6,7 +6,8 @@ members = [
     "cathedral-napi",
     "aegis-plausible-reasoner",
     "aegis",
-    "cathedral-core"
+    "cathedral-core",
+    "cathedral-agent"
 ]
 
 [workspace.dependencies]

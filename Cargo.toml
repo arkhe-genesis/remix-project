@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "cathedral-arkhe-crawler",
     "cathedral-orchestrator",
     "cathedral-embodied-no_std",
     "cathedral-napi",

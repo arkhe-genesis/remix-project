@@ -393,3 +393,6 @@ pub extern "C" fn cathedral_icmp_probe(target_bytes: *const u8) -> i32 {
     }
     -1
 }
+
+pub mod integrations;
+pub mod multi_chain;

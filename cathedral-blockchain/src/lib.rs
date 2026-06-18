@@ -8,6 +8,7 @@ pub mod consensus;
 pub mod network;
 
 // ============================================================================
+pub mod substrato_4004;
 // SUBSTRATO 319.1 — CASTER SOFTWARE (Network Unification Layer)
 // ============================================================================
 

@@ -157,6 +157,34 @@ impl Subagent {
         ).await
     }
 
+    /// Executa uma skill mapeada no contexto do Subagente
+    pub async fn execute_skill(
+        &self,
+        skill_name: &str,
+        skill_executor: &mut crate::skill::executor::SkillExecutor,
+    ) -> Result<String, String> {
+        if !self.is_active {
+            return Err("Subagente inativo".to_string());
+        }
+
+        info!("🎯 Subagente {} executando skill: {}", self.identity.id, skill_name);
+
+        // O SkillExecutor fará o roteamento e a execução dos steps da skill
+        let result: String = skill_executor.execute_skill(skill_name).await?;
+
+        // Registra no TrajectoryStore
+        let _ = self.trajectory_store.record_trajectory(
+            &self.identity.id,
+            &format!("execute_skill: {}", skill_name),
+            vec!["skill".to_string()],
+            &result,
+            vec![],
+            vec![],
+        ).await;
+
+        Ok(result)
+    }
+
     /// Desativa o subagente (encerra operações).
     pub async fn deactivate(&mut self) {
         self.is_active = false;

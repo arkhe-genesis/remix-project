@@ -195,7 +195,66 @@ pub async fn handle_execute_subagent(
 }
 
 // ============================================================================
-// 5. Definições para tools/list
+// 5. Handler: execute_skill
+// ============================================================================
+
+pub async fn handle_execute_skill(
+    args: serde_json::Value,
+    state: &Arc<MCPServerState>,
+) -> Result<serde_json::Value, MCPError> {
+    let spawner = state.subagent_spawner.as_ref()
+        .ok_or_else(|| MCPError {
+            code: -32000,
+            message: "SubagentSpawner não disponível".to_string(),
+            data: None,
+        })?;
+
+    let id = args
+        .get("id")
+        .and_then(|v: &serde_json::Value| v.as_str())
+        .ok_or_else(|| MCPError {
+            code: -32602,
+            message: "Campo 'id' obrigatório".to_string(),
+            data: None,
+        })?;
+
+    let skill_name = args
+        .get("skill_name")
+        .and_then(|v: &serde_json::Value| v.as_str())
+        .ok_or_else(|| MCPError {
+            code: -32602,
+            message: "Campo 'skill_name' obrigatório".to_string(),
+            data: None,
+        })?;
+
+    let subagent: crate::orchestrator::subagent_spawner::Subagent = spawner.get(id).await
+        .ok_or_else(|| MCPError {
+            code: -32000,
+            message: format!("Subagente '{}' não encontrado", id),
+            data: None,
+        })?;
+
+    // Instancia o SkillManager e o Executor de forma transiente para MCP API.
+    // Em produção, isso ficaria no MCPServerState
+    let manager = crate::skill::manager::SkillManager::new();
+    let mut executor = crate::skill::executor::SkillExecutor::new(manager);
+
+    let result = subagent.execute_skill(skill_name, &mut executor).await
+        .map_err(|e| MCPError {
+            code: -32000,
+            message: format!("Falha na execução da skill: {}", e),
+            data: None,
+        })?;
+
+    Ok(json!({
+        "subagent_id": id,
+        "skill_name": skill_name,
+        "result": result,
+    }))
+}
+
+// ============================================================================
+// 6. Definições para tools/list
 // ============================================================================
 
 pub fn subagent_tool_definitions() -> Vec<serde_json::Value> {

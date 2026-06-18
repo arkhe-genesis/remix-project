@@ -4,6 +4,8 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+clap = { version = "4.4", features = ["derive"] }
+reqwest = { version = "0.12", features = ["json"] }
 async-trait = "0.1.74"
 axum = "0.7"
 chrono = "0.4.31"

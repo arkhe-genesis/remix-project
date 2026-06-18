@@ -74,3 +74,4 @@ pub mod skill;
 pub mod swarm;
 pub mod cli;
 pub mod thread;
+pub mod evolution;

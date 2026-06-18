@@ -1,4 +1,4 @@
 pub mod resource;
-pub mod sepl;
-pub mod secret_resource;
-pub mod lora_finetune;
+pub mod desci_node_resource;
+pub mod sepl_desci;
+pub mod identity_resource;

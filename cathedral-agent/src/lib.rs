@@ -74,8 +74,4 @@ pub mod skill;
 pub mod swarm;
 pub mod cli;
 pub mod thread;
-
-pub mod observability;
-pub mod hashtree;
-pub mod error_handling;
 pub mod evolution;

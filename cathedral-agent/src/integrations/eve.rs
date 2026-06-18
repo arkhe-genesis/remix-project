@@ -4,7 +4,7 @@
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 // use reqwest::Client;
-use tracing::{info, error};
+use tracing::info;
 
 // ─── Tipos ──────────────────────────────────────────────────────────
 

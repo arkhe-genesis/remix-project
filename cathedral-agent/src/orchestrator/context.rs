@@ -5,8 +5,8 @@
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
-use tracing::{debug, warn, info};
+use chrono::Utc;
+use tracing::{debug, info};
 
 // ============================================================================
 // 1. Estrutura do Contexto

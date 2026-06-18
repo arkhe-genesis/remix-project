@@ -1,6 +1,6 @@
 use crate::skill::types::{Skill, SkillType, SkillExecution, ExecutionStatus};
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::info;
 
 pub struct SkillManager {
     skills: HashMap<String, Skill>,

@@ -1,7 +1,6 @@
 // src/cli/skill_commands.rs (extensão para mock environment)
 
 use crate::swarm::second_self::SecondSelfOrchestrator;
-use crate::skill::manager::SkillManager;
 use crate::skill::types::Skill;
 
 #[derive(Debug, Clone)]

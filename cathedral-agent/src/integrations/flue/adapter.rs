@@ -6,7 +6,7 @@ use crate::skill::types::Skill;
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use std::path::PathBuf;
-use tracing::{info, warn};
+use tracing::info;
 
 // ─── Tipos ──────────────────────────────────────────────────────────
 

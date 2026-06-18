@@ -70,7 +70,7 @@ impl ThreadCommand {
     pub async fn execute(
         &self,
         _orchestrator: &SecondSelfOrchestrator,
-        index: &ThreadIndex,
+        _index: &ThreadIndex,
     ) -> Result<String, String> {
         match self {
             Self::IngestClaude { path, project, dry_run } => {

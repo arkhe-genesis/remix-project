@@ -5,7 +5,7 @@ use crate::skill::manager::SkillManager;
 use crate::skill::types::SkillType;
 use crate::skill::executor::SkillExecutor;
 use std::time::Duration;
-use tracing::{info, error};
+use tracing::info;
 use tokio::time;
 
 pub struct BackgroundSwarm {

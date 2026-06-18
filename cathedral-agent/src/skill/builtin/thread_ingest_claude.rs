@@ -2,7 +2,7 @@
 //! Skill: Importação de conversas do Claude com parser robusto e suporte a anexos
 
 use crate::skill::types::{Skill, SkillType, SkillStep};
-use crate::thread::schema::{Thread, Message, MessageRole, ThreadSource, Attachment, ThreadBuilder};
+use crate::thread::schema::{Thread, MessageRole, ThreadSource, Attachment, ThreadBuilder};
 use serde_json::Value;
 use std::collections::HashMap;
 use tokio::fs;
@@ -395,7 +395,7 @@ impl ClaudeIngestExecutor {
         }
     }
 
-    fn store_attachment(&self, name: &str, data: &[u8]) -> Result<String, String> {
+    fn store_attachment(&self, _name: &str, data: &[u8]) -> Result<String, String> {
         let hash = blake3::hash(data);
         let hash_hex = hash.to_hex().to_string();
         // Em um sistema real, salvaríamos via storage provider aqui

@@ -7,6 +7,7 @@ pub mod triage;
 pub mod eve;
 pub mod opencut_skill;
 pub mod video_edit;
+pub mod qvac_inference;
 pub mod thread_ingest_claude;
 pub mod thread_search;
 pub mod thread_ingest_cursor;
@@ -26,6 +27,7 @@ pub async fn register_all(skill_mgr: &mut SkillManager) -> Result<Vec<String>, S
         eve::eve_skill(),
         opencut_skill::opencut_skill(),
         video_edit::video_edit_skill(),
+        qvac_inference::qvac_inference_skill(),
         thread_ingest_claude::thread_ingest_claude_skill(),
         thread_search::thread_search_skill(),
         thread_ingest_cursor::thread_ingest_cursor_skill(),

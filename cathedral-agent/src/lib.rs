@@ -69,3 +69,8 @@ pub mod governance {
         pub async fn list_active_policies(&self) -> Result<Vec<crate::attestation::PolicyDescriptor>, String> { Ok(vec![]) }
     }
 }
+pub mod integrations;
+pub mod skill;
+pub mod swarm;
+pub mod cli;
+pub mod thread;

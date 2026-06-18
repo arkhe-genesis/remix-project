@@ -6,14 +6,46 @@ use tracing::info;
 
 pub struct SecondSelfOrchestrator {
     pub skill_manager: SkillManager,
+    pub qvac_executor: Option<crate::skill::builtin::qvac_inference::QVACInferenceExecutor>,
 }
 
 use crate::integrations::flue::adapter::FlueAdapter;
-use crate::integrations::eve::{EveClient, EveTask, EveResult, EveStrategy, EveDeployTarget};
+use crate::integrations::eve::{EveTask, EveResult, EveStrategy, EveDeployTarget};
 
 impl SecondSelfOrchestrator {
     pub fn new(skill_manager: SkillManager) -> Self {
-        Self { skill_manager }
+        Self { skill_manager, qvac_executor: None }
+    }
+
+    pub async fn init_evolution_system_with_qvac(
+        &mut self,
+        default_model_hash: &str,
+        qvac_config: crate::skill::builtin::qvac_inference::QVACConfig,
+    ) -> Result<(), String> {
+        let storage = crate::hashtree::adapter::HashTreeStorage::new();
+        let trace_manager = std::sync::Arc::new(crate::observability::trace_manager::TraceManager::new());
+        let eve_client = crate::integrations::eve::default_eve_client()?;
+
+        let _operator = crate::evolution::sepl::AutogenesisOperator::new_with_qvac(
+            eve_client,
+            storage.clone(),
+            trace_manager.clone(),
+            default_model_hash,
+            qvac_config.clone(),
+            5,
+        ).await?;
+
+        self.qvac_executor = Some(crate::skill::builtin::qvac_inference::QVACInferenceExecutor::new(
+            storage,
+            trace_manager,
+            qvac_config,
+            default_model_hash,
+        ));
+
+        // At this point we would store the operator/pipeline and qvac_executor
+        // but this orchestrator structure is simplified for now.
+        info!("✅ Sistema de evolução inicializado com QVAC local");
+        Ok(())
     }
 
     /// Gera e implanta uma Skill como Worker Flue
@@ -25,7 +57,7 @@ impl SecondSelfOrchestrator {
             .ok_or_else(|| format!("Skill '{}' não encontrada", skill_name))?.clone();
 
         let adapter = FlueAdapter::new(std::path::PathBuf::from("./flue-workers"));
-        let worker_path = adapter.write_worker_files(&skill).await?;
+        let _worker_path = adapter.write_worker_files(&skill).await?;
         let url = adapter.deploy_worker(skill_name).await?;
 
         Ok(url)
@@ -35,8 +67,8 @@ impl SecondSelfOrchestrator {
     pub async fn execute_skill_on_flue(
         &self,
         skill_name: &str,
-        input: &str,
-        params: &std::collections::HashMap<String, String>,
+        _input: &str,
+        _params: &std::collections::HashMap<String, String>,
         flue_url: Option<&str>,
     ) -> Result<String, String> {
         let url = if let Some(url) = flue_url {

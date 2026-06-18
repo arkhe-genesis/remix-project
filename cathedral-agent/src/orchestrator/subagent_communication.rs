@@ -4,10 +4,10 @@
 
 use std::sync::Arc;
 use serde::{Deserialize, Serialize};
-use chrono::{DateTime, Utc};
+use chrono::Utc;
 use tracing::{info, warn};
 
-use crate::attestation::{AttestationSigner, AttestationVerifier, Canonicalizable};
+use crate::attestation::{AttestationSigner, AttestationVerifier};
 
 // ============================================================================
 // 1. Mensagem entre Subagentes

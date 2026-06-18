@@ -2,12 +2,10 @@
 //! Derivação hierárquica de identidades usando HMAC-SHA512 e caminhos BIP32.
 //! Selo: CATHEDRAL-ARKHE-v28.3.2-IDENTITY-DERIVATION-2026-06-17
 
-use std::sync::Arc;
 use hmac::{Hmac, Mac};
 use sha2::Sha512;
 use blake3::hash as blake3_hash;
 use serde::{Deserialize, Serialize};
-use tracing::{debug, info};
 
 use crate::attestation::IdentityAttestation;
 

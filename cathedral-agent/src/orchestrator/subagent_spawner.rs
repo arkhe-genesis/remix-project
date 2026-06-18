@@ -5,8 +5,8 @@
 use std::sync::Arc;
 use tokio::sync::RwLock;
 use serde::{Deserialize, Serialize};
-use tracing::{info, warn, error};
-use chrono::{DateTime, Utc};
+use tracing::info;
+use chrono::Utc;
 
 use crate::attestation::{
     AttestationManager, AttestationProvider, AttestationSigner,

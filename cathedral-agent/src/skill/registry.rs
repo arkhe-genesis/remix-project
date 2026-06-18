@@ -1,8 +1,8 @@
 //! Registro público de skills via Nostr (kind 30078)
 
-use crate::skill::types::{Skill, SkillType};
+use crate::skill::types::Skill;
 use std::collections::HashMap;
-use tracing::{info, warn};
+use tracing::info;
 
 pub struct SkillRegistry {
     cache: HashMap<String, Skill>,

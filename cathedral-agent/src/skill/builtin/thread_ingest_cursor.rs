@@ -6,7 +6,6 @@ use crate::thread::schema::{Thread, Message, MessageRole, ThreadSource, ThreadBu
 use serde_json::Value;
 use std::collections::HashMap;
 use tokio::fs;
-use tracing::info;
 
 pub fn thread_ingest_cursor_skill() -> Skill {
     Skill {

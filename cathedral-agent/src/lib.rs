@@ -4,7 +4,7 @@ pub mod orchestrator;
 pub mod attestation {
     pub struct AttestationManager {}
     impl AttestationManager {
-        pub fn new(store: Option<std::sync::Arc<crate::memory::TrajectoryStore>>) -> Self { Self {} }
+        pub fn new(_store: Option<std::sync::Arc<crate::memory::TrajectoryStore>>) -> Self { Self {} }
     }
     pub trait AttestationProvider: Send + Sync {
         fn run<'a>(&'a self, task: &'a str, cost: Option<f64>) -> std::pin::Pin<Box<dyn std::future::Future<Output = Result<String, String>> + Send + 'a>>;

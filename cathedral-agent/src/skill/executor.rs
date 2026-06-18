@@ -1,6 +1,6 @@
 //! Executa skills via Subagents
 
-use crate::skill::types::{Skill, SkillExecution, ExecutionStatus};
+use crate::skill::types::ExecutionStatus;
 use crate::skill::manager::SkillManager;
 // use crate::orchestrator::subagent_spawner::SubagentSpawner;
 use tracing::{info, error};

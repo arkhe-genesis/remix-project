@@ -3,7 +3,7 @@
 
 use serde::{Serialize, Deserialize};
 use serde_json::json;
-use tracing::{info, error};
+use tracing::info;
 use std::collections::HashMap;
 
 // ─── Tipos ──────────────────────────────────────────────────────────
@@ -185,7 +185,7 @@ impl OpenCutMcpClient {
             project_id: Some(self.session_id.clone()),
         };
 
-        let request_json = serde_json::to_string(&request)
+        let _request_json = serde_json::to_string(&request)
             .map_err(|e| format!("Erro ao serializar request: {}", e))?;
 
         // Mock implementation to bypass ArdMcpAdapter

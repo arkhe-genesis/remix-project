@@ -21,11 +21,22 @@ service CathedralBridge {
 // ============================================================
 // INGEST
 // ============================================================
+
+enum SignatureAlgorithm {
+    SIGNATURE_ALGORITHM_UNSPECIFIED = 0;
+    ED25519 = 1;
+    ML_DSA_65 = 2;
+}
+
 message IngestRequest {
+
     string project_id = 1;
     string agent_id = 2;
     repeated Event events = 3;
     optional string batch_id = 4;
+    optional bytes agent_signature = 5;
+    optional bytes batch_hash = 6;
+    optional SignatureAlgorithm signature_algorithm = 7;
 }
 
 message IngestResponse {

@@ -9,17 +9,40 @@ use cathedral_v1::{
 };
 use tonic::{Request, Response, Status};
 
+use ed25519_dalek::{VerifyingKey as Ed25519VerifyingKey, Verifier as _};
+use fips204::ml_dsa_65::{PublicKey as MlDsa65PublicKey};
+use fips204::traits::{SerDes, Verifier as _};
+use cathedral_v1::SignatureAlgorithm;
+
+
 #[derive(Debug, Default)]
 pub struct CathedralBridgeImpl {}
 
 #[tonic::async_trait]
 impl CathedralBridge for CathedralBridgeImpl {
-    async fn ingest(
+async fn ingest(
         &self,
         request: Request<IngestRequest>,
     ) -> Result<Response<IngestResponse>, Status> {
         let req = request.into_inner();
         let events_count = req.events.len() as u32;
+
+        if let (Some(batch_hash), Some(sig), Some(sig_alg)) = (&req.batch_hash, &req.agent_signature, req.signature_algorithm) {
+            match SignatureAlgorithm::try_from(sig_alg) {
+                Ok(SignatureAlgorithm::Ed25519) => {
+                    // Logic to retrieve agent's Ed25519 public key.
+                    // For this stub, we just pretend it succeeds.
+                    println!("Verifying Ed25519 signature for agent {}", req.agent_id);
+                }
+                Ok(SignatureAlgorithm::MlDsa65) => {
+                    // Logic to retrieve agent's ML-DSA-65 public key.
+                    println!("Verifying ML-DSA-65 signature for agent {}", req.agent_id);
+                }
+                _ => {
+                    return Err(Status::invalid_argument("Unsupported signature algorithm"));
+                }
+            }
+        }
 
         let response = IngestResponse {
             success: true,

@@ -4,7 +4,7 @@ pub mod cathedral_v1 {
 
 use cathedral_v1::cathedral_bridge_client::CathedralBridgeClient;
 use cathedral_v1::{
-    GovernanceRequest, GovernanceResponse, IngestRequest, IngestResponse, Event
+    GovernanceRequest, GovernanceResponse, IngestRequest, IngestResponse
 };
 use tonic::transport::Channel;
 use anyhow::Result;

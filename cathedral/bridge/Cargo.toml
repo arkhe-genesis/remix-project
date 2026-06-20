@@ -1,4 +1,3 @@
-[workspace]
 
 [package]
 name = "cathedral-bridge"
@@ -11,6 +10,12 @@ prost = "0.13"
 tokio = { version = "1", features = ["macros", "rt-multi-thread"] }
 prost-types = "0.13"
 chrono = "0.4.45"
+anyhow = "1.0"
+tracing = "0.1"
+blake3 = "1.5"
+common = { path = "../../common" }
+cathedral-sdk-rs = { path = "../sdk-rs" }
+tracing-subscriber = "0.3.23"
 
 [build-dependencies]
 tonic-build = "0.12"

@@ -7,8 +7,11 @@ members = [
     "aegis-plausible-reasoner",
     "aegis",
     "cathedral-core",
-    "cathedral-agent"
-]
+    "cathedral-agent",
+    "cathedral/bridge",
+    "cathedral/sdk-rs",
+    "benches"
+, "common"]
 
 [workspace.dependencies]
 aegis-plausible-reasoner = { path = "aegis-plausible-reasoner" }

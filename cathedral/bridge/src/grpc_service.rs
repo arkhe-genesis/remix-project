@@ -2,7 +2,7 @@ pub mod cathedral_v1 {
     tonic::include_proto!("cathedral.v1");
 }
 
-use cathedral_v1::cathedral_bridge_server::{CathedralBridge, CathedralBridgeServer};
+use cathedral_v1::cathedral_bridge_server::CathedralBridge;
 use cathedral_v1::{
     GovernanceRequest, GovernanceResponse, IngestRequest, IngestResponse,
     QueryProvenanceRequest, QueryProvenanceResponse, GovernanceVerdict

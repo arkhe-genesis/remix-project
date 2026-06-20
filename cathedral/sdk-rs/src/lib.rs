@@ -1,35 +1,79 @@
+pub mod crypto;
 pub mod grpc_client;
 
-use std::collections::HashMap;
-use anyhow::{Result, bail};
+use anyhow::Result;
+use serde_json::Value;
 
-use crate::grpc_client::{CathedralGrpcClient};
-use crate::grpc_client::cathedral_v1::{Event, EventType, EventMetadata, IngestRequest, SignatureAlgorithm};
+use crate::grpc_client::CathedralGrpcClient;
+use crate::grpc_client::cathedral_v1::{Event, EventType, EventMetadata, IngestRequest};
+use common::crypto_config::CryptoConfig;
+use crate::crypto::{CryptoFactory, SigningKeyWrapper};
 
-use ed25519_dalek::{SigningKey as Ed25519SigningKey, Signer as _};
-use fips204::ml_dsa_65::{PrivateKey as MlDsa65PrivateKey};
-use fips204::traits::{SerDes, Signer as _};
+pub struct CathedralSdkConfig {
+    pub endpoint: String,
+    pub project_id: String,
+    pub agent_id: String,
+    pub crypto: CryptoConfig,
+    pub private_key_bytes: Option<Vec<u8>>,
+}
 
-pub enum AgentKey {
-    Ed25519(Ed25519SigningKey),
-    MlDsa65(MlDsa65PrivateKey),
+impl Default for CathedralSdkConfig {
+    fn default() -> Self {
+        Self {
+            endpoint: "http://localhost:50051".to_string(),
+            project_id: "default".to_string(),
+            agent_id: "default".to_string(),
+            crypto: CryptoConfig::default(),
+            private_key_bytes: None,
+        }
+    }
 }
 
 pub struct CathedralSdk {
     client: CathedralGrpcClient,
     project_id: String,
     agent_id: String,
-    key: Option<AgentKey>,
+    pub config: CathedralSdkConfig,
+    pub signing_key: SigningKeyWrapper,
+    pub fallback_key: Option<SigningKeyWrapper>,
+    factory: CryptoFactory,
 }
 
 impl CathedralSdk {
-    pub async fn new(endpoint: String, project_id: String, agent_id: String, key: Option<AgentKey>) -> Result<Self> {
-        let client = CathedralGrpcClient::connect(endpoint).await?;
+    pub async fn new(config: CathedralSdkConfig) -> Result<Self> {
+        let client = CathedralGrpcClient::connect(config.endpoint.clone()).await?;
+
+        let crypto_config = config.crypto.clone();
+        let factory = CryptoFactory::new(crypto_config.clone());
+
+        let signing_key = if let Some(ref bytes) = config.private_key_bytes {
+            SigningKeyWrapper::from_bytes(crypto_config.signature_algorithm, bytes)?
+        } else {
+            factory.generate_signing_key()?
+        };
+
+        let fallback_key = if crypto_config.dual_stack_mode {
+            if let Some(fallback_alg) = crypto_config.fallback_signature_algorithm {
+                if let Some(ref bytes) = config.private_key_bytes {
+                    Some(SigningKeyWrapper::from_bytes(fallback_alg, bytes)?)
+                } else {
+                    factory.generate_fallback_key()?
+                }
+            } else {
+                None
+            }
+        } else {
+            None
+        };
+
         Ok(Self {
             client,
-            project_id,
-            agent_id,
-            key,
+            project_id: config.project_id.clone(),
+            agent_id: config.agent_id.clone(),
+            config,
+            signing_key,
+            fallback_key,
+            factory,
         })
     }
 
@@ -37,14 +81,8 @@ impl CathedralSdk {
         &mut self,
         design_hash: String,
         parent_hashes: Vec<String>,
-        parameters: HashMap<String, f64>,
-        rationale: String,
+        payload: Value,
     ) -> Result<()> {
-        let payload = serde_json::json!({
-            "parameters": parameters,
-            "rationale": rationale,
-        });
-
         let event = Event {
             event_id: uuid::Uuid::new_v4().to_string(),
             timestamp: Some(prost_types::Timestamp {
@@ -56,7 +94,7 @@ impl CathedralSdk {
             parent_hashes,
             payload_json: payload.to_string(),
             metadata: Some(EventMetadata {
-                domain: "aerospace".to_string(),
+                domain: "test".to_string(),
                 confidence: 0.5,
                 compute_cost_usd: 0.0,
                 tags: vec![],

@@ -17,11 +17,14 @@ class CathedralGrpcClient:
         self.channel = grpc.insecure_channel(endpoint)
         self.stub = pb2_grpc.CathedralBridgeStub(self.channel)
 
-    def ingest(self, project_id: str, agent_id: str, events: list) -> pb2.IngestResponse:
+    def ingest(self, project_id: str, agent_id: str, events: list, agent_signature: bytes = None, batch_hash: bytes = None, signature_algorithm: int = None) -> pb2.IngestResponse:
         request = pb2.IngestRequest(
             project_id=project_id,
             agent_id=agent_id,
-            events=events
+            events=events,
+            agent_signature=agent_signature,
+            batch_hash=batch_hash,
+            signature_algorithm=signature_algorithm
         )
         return self.stub.Ingest(request)
 

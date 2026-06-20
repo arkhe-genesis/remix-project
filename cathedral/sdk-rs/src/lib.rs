@@ -101,11 +101,34 @@ impl CathedralSdk {
             }),
         };
 
+        // Serialize the payload for signing
+        let batch_hash = {
+            let mut hasher = blake3::Hasher::new();
+            hasher.update(event.event_id.as_bytes());
+            hasher.update(event.design_hash.as_bytes());
+            hasher.finalize().as_bytes().to_vec()
+        };
+
+        let (agent_signature, signature_algorithm) = match &self.key {
+            Some(AgentKey::Ed25519(sk)) => {
+                let sig = sk.sign(&batch_hash);
+                (Some(sig.to_bytes().to_vec()), Some(SignatureAlgorithm::Ed25519 as i32))
+            },
+            Some(AgentKey::MlDsa65(sk)) => {
+                let sig = sk.try_sign(&batch_hash, &[]).map_err(|e| anyhow::anyhow!("ML-DSA signing failed: {}", e))?; // Sign empty context for now
+                (Some(sig.to_vec()), Some(SignatureAlgorithm::MlDsa65 as i32))
+            },
+            None => (None, None),
+        };
+
         let request = IngestRequest {
             project_id: self.project_id.clone(),
             agent_id: self.agent_id.clone(),
             events: vec![event],
             batch_id: None,
+            agent_signature,
+            batch_hash: Some(batch_hash),
+            signature_algorithm,
         };
 
         self.client.ingest(request).await?;

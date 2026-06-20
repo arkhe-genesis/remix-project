@@ -125,3 +125,22 @@ message ProvenanceEntry {
     optional string rationale = 6;
     google.protobuf.Timestamp timestamp = 7;
 }
+
+// ============================================================
+// AGENT IDENTITY (DUAL STACK CRYPTO)
+// ============================================================
+message AgentIdentity {
+    string agent_id = 1;
+    optional string parent_agent_id = 2;
+    optional string tree_id = 3;
+    repeated string subagent_ids = 4;
+    string role = 5;
+    uint32 depth = 6;
+    optional string reputation_hash = 7;
+    map<string, string> metadata = 8;
+
+    // NOVOS CAMPOS PARA CHAVES PÚBLICAS
+    optional bytes ed25519_public_key = 9;
+    optional bytes ml_dsa_public_key = 10;    // ML-DSA (Dilithium)
+    optional bytes slh_dsa_public_key = 11;   // SLH-DSA (SPHINCS+)
+}

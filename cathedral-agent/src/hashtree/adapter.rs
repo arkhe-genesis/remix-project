@@ -7,6 +7,12 @@ pub struct HashTreeStorage {
     storage: Arc<Mutex<HashMap<String, Vec<u8>>>>,
 }
 
+impl Default for HashTreeStorage {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl HashTreeStorage {
     pub fn new() -> Self {
         Self { storage: Arc::new(Mutex::new(HashMap::new())) }

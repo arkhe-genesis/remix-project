@@ -276,7 +276,7 @@ export default app;
         let mut toml = String::new();
 
         toml.push_str(&format!("name = \"{}\"\n", config.name));
-        toml.push_str(&format!("main = \"src/index.ts\"\n"));
+        toml.push_str("main = \"src/index.ts\"\n");
         toml.push_str("compatibility_date = \"2025-01-01\"\n");
         toml.push_str("\n[vars]\n");
         for (k, v) in &config.env_vars {

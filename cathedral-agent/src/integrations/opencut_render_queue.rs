@@ -9,6 +9,12 @@ pub struct OpenCutProject {}
 
 pub struct OpenCutRenderQueue {}
 
+impl Default for OpenCutRenderQueue {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl OpenCutRenderQueue {
     pub fn new() -> Self {
         Self {}

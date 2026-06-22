@@ -1,4 +1,4 @@
-use crate::evolution::desci_node_resource::{DeSciNodeResource, ContributorRole, NodeStatus};
+use crate::evolution::desci_node_resource::{ContributorRole, NodeStatus};
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Serialize, Deserialize)]

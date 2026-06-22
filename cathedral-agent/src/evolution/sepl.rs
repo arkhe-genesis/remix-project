@@ -87,9 +87,9 @@ impl AutogenesisOperator {
         qvac_config: crate::skill::builtin::qvac_inference::QVACConfig,
         max_iterations: usize,
     ) -> Result<Self, String> {
-        let qvac_executor = QVACInferenceExecutor::new(
-            storage.clone(),
-            trace_manager.clone(),
+        let qvac_executor = QVACInferenceExecutor::new(storage.clone(), trace_manager.clone(),
+
+
             qvac_config,
             default_model_hash,
         );

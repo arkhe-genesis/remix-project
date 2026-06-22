@@ -1,3 +1,4 @@
+#![allow(warnings)]
 pub mod orchestrator;
 // pub mod mcp;
 // pub mod testing;
@@ -39,6 +40,12 @@ pub mod attestation {
 pub mod memory {
     #[derive(Debug)]
     pub struct TrajectoryStore {}
+    impl Default for TrajectoryStore {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl TrajectoryStore {
         pub fn new() -> Self { Self {} }
         pub async fn record_trajectory(&self, _agent: &str, _goal: &str, _tags: Vec<String>, _result: &str, _in: Vec<String>, _out: Vec<String>) -> Result<String, String> { Ok("".to_string()) }
@@ -64,6 +71,12 @@ pub mod security {
 }
 pub mod governance {
     pub struct GeometricPolicyEngine {}
+    impl Default for GeometricPolicyEngine {
+        fn default() -> Self {
+            Self::new()
+        }
+    }
+
     impl GeometricPolicyEngine {
         pub fn new() -> Self { Self {} }
         pub async fn list_active_policies(&self) -> Result<Vec<crate::attestation::PolicyDescriptor>, String> { Ok(vec![]) }
@@ -75,3 +88,5 @@ pub mod swarm;
 pub mod cli;
 pub mod thread;
 pub mod evolution;
+pub mod hashtree;
+pub mod observability;

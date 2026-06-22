@@ -1,103 +1,227 @@
-# ================================================================
-# Makefile — Substratos Lattice-Based da Catedral ARKHE
+# Cathedral-LLM — Makefile
 # Arquiteto ORCID 0009-0005-2697-4668
-# Seal: MAKEFILE-LATTICE-2026-06-01
-# ================================================================
 
-.PHONY: all test clean install lean python-deps
+.PHONY: all build test lint fmt check clean install dev docs bench release docker
 
+# Variáveis
+RUSTFLAGS ?= "-C target-cpu=native"
+CARGO := cargo
+DOCKER := docker
 PYTHON := python3
-PIP := pip3
-LEAN := lake
 
-# Diretórios
-SRC_DIR := .
-OUT_DIR := ./output
-TEST_DIR := ./tests
+# Default target
+all: fmt lint test build
 
-# Arquivos fonte
-LATTICE_CRYPTO := $(SRC_DIR)/lattice_crypto.py
-MESH_PASSPORT := $(SRC_DIR)/mesh_passport.py
-COGNITIVE_OPS := $(SRC_DIR)/cognitive_operators.py
-ORCHESTRATOR := $(SRC_DIR)/orchestrator.py
-LEAN_AXIARCHY := $(SRC_DIR)/axiarchy_lattice.lean
+# === BUILD ===
 
-all: python-deps lean test
+build:
+	@echo "🏛️  Building Cathedral-LLM workspace..."
+	$(CARGO) build --workspace
 
-# Instalar dependências Python
-python-deps:
-	@echo "[MAKE] Instalando dependências Python..."
-	$(PIP) install numpy scipy sympy 2>/dev/null || true
-	@echo "[MAKE] Dependências Python OK"
+build-release:
+	@echo "🏛️  Building Cathedral-LLM (release)..."
+	RUSTFLAGS=$(RUSTFLAGS) $(CARGO) build --workspace --release
 
-# Compilar formalização Lean 4
-lean:
-	@echo "[MAKE] Verificando formalização Lean 4..."
-	@echo "[MAKE] Nota: Requer Lean 4 + mathlib4 instalados"
-	@echo "[MAKE] Execute: lake build (no diretório do projeto Lean)"
-	@echo "[MAKE] Lean stubs verificados (compilação requer ambiente Lean)"
+build-core:
+	@echo "🏛️  Building cathedral-llm-core..."
+	$(CARGO) build -p cathedral-llm-core --release
 
-# Testar substrato 955.1 (Safe-Core-PQC)
-test-crypto:
-	@echo "[MAKE] Testando Substrato 955.1 — Safe-Core-PQC..."
-	$(PYTHON) lattice_crypto.py
-	@echo "[MAKE] Substrato 955.1: PASS"
+build-runtime:
+	@echo "🏛️  Building cathedral-inference-runtime..."
+	$(CARGO) build -p cathedral-inference-runtime --release
 
-# Testar substrato 972.2 + 989.x (Mesh + Passport)
-test-mesh:
-	@echo "[MAKE] Testando Substrato 972.2 — Global Mesh..."
-	@echo "[MAKE] Testando Substrato 989.x — Passport Gateway..."
-	$(PYTHON) mesh_passport.py
-	@echo "[MAKE] Substratos 972.2 + 989.x: PASS"
+build-api:
+	@echo "🏛️  Building cathedral-api..."
+	$(CARGO) build -p cathedral-api --release
 
-# Testar substratos 951-953 (Cognitive Operators)
-test-cognitive:
-	@echo "[MAKE] Testando Substratos 951-953 — Cognitive Operators..."
-	$(PYTHON) cognitive_operators.py
-	@echo "[MAKE] Substratos 951-953: PASS"
+build-cli:
+	@echo "🏛️  Building cathedral-cli..."
+	$(CARGO) build -p cathedral-cli --release
 
-# Teste integrado completo (Substrato 1018)
-test-integration:
-	@echo "[MAKE] Testando Substrato 1018 — Orchestrator Integrado..."
-	$(PYTHON) orchestrator.py
-	@echo "[MAKE] Substrato 1018: PASS"
+# === TEST ===
 
-# Executar todos os testes
-test: test-crypto test-mesh test-cognitive test-integration
-	@echo "[MAKE] ============================================"
-	@echo "[MAKE] TODOS OS TESTES PASSARAM"
-	@echo "[MAKE] SEAL: LATTICE-INTEGRATION-COMPLETE"
-	@echo "[MAKE] ============================================"
+test:
+	@echo "🏛️  Running all tests..."
+	$(CARGO) test --workspace
 
-# Limpar artefatos
-clean:
-	@echo "[MAKE] Limpando artefatos..."
-	rm -f $(OUT_DIR)/*.pyc
-	rm -rf $(OUT_DIR)/__pycache__
-	rm -f *.pyc
-	rm -rf __pycache__
-	@echo "[MAKE] Limpo"
+test-core:
+	@echo "🏛️  Testing cathedral-llm-core..."
+	$(CARGO) test -p cathedral-llm-core
 
-# Instalação completa
-install: python-deps
-	@echo "[MAKE] Instalação completa da Catedral Lattice-Based"
-	@echo "[MAKE] Arquivos instalados:"
-	@echo "  - $(LATTICE_CRYPTO)"
-	@echo "  - $(MESH_PASSPORT)"
-	@echo "  - $(COGNITIVE_OPS)"
-	@echo "  - $(ORCHESTRATOR)"
-	@echo "  - $(LEAN_AXIARCHY)"
-	@echo "[MAKE] Execute 'make test' para verificar"
+test-runtime:
+	@echo "🏛️  Testing cathedral-inference-runtime..."
+	$(CARGO) test -p cathedral-inference-runtime
 
-# Documentação
+test-e2e:
+	@echo "🏛️  Running end-to-end tests..."
+	$(CARGO) test -p cathedral-tests -- --test-threads=1 --nocapture
+
+test-zk:
+	@echo "🏛️  Testing ZK proofs..."
+	$(CARGO) test -p cathedral-zk
+
+test-identity:
+	@echo "🏛️  Testing identity verification..."
+	$(CARGO) test -p cathedral-identity
+
+# === LINT ===
+
+lint:
+	@echo "🏛️  Running clippy..."
+	$(CARGO) clippy --workspace --all-targets --all-features -- -D warnings
+
+fmt:
+	@echo "🏛️  Formatting code..."
+	$(CARGO) fmt --all
+
+check:
+	@echo "🏛️  Running cargo check..."
+	$(CARGO) check --workspace
+
+deny:
+	@echo "🏛️  Running cargo deny..."
+	cargo deny check
+
+# === DOCUMENTATION ===
+
 docs:
-	@echo "[MAKE] Documentação dos substratos:"
+	@echo "🏛️  Building documentation..."
+	$(CARGO) doc --workspace --no-deps --open
+
+docs-private:
+	@echo "🏛️  Building documentation (private items)..."
+	$(CARGO) doc --workspace --document-private-items
+
+# === BENCHMARKS ===
+
+bench:
+	@echo "🏛️  Running benchmarks..."
+	$(CARGO) bench -p cathedral-benchmarks
+
+bench-inference:
+	@echo "🏛️  Benchmarking inference..."
+	$(CARGO) bench -p cathedral-benchmarks -- inference
+
+bench-zk:
+	@echo "🏛️  Benchmarking ZK proofs..."
+	$(CARGO) bench -p cathedral-benchmarks -- zk
+
+# === DEVELOPMENT ===
+
+dev:
+	@echo "🏛️  Starting development environment..."
+	docker-compose -f docker/docker-compose.dev.yml up -d
+
+setup:
+	@echo "🏛️  Setting up development environment..."
+	@bash scripts/setup-dev.sh
+
+bootstrap:
+	@echo "🏛️  Bootstrapping Cathedral-LLM..."
+	@bash scripts/bootstrap.sh
+
+# === DOCKER ===
+
+docker-build:
+	@echo "🏛️  Building Docker images..."
+	$(DOCKER) build -f docker/Dockerfile.base -t cathedral-llm:base .
+	$(DOCKER) build -f docker/Dockerfile.cpu -t cathedral-llm:cpu .
+
+docker-run:
+	@echo "🏛️  Running Cathedral-LLM in Docker..."
+	docker-compose -f docker/docker-compose.yml up -d
+
+docker-stop:
+	@echo "🏛️  Stopping Cathedral-LLM containers..."
+	docker-compose -f docker/docker-compose.yml down
+
+# === MODELS ===
+
+model-download:
+	@echo "🏛️  Downloading model checkpoints..."
+	$(PYTHON) models/huggingface/download.py
+
+model-convert:
+	@echo "🏛️  Converting model format..."
+	$(PYTHON) tools/model_converter/convert_from_hf.py
+
+model-quantize:
+	@echo "🏛️  Quantizing model..."
+	$(PYTHON) tools/quantizer/quantize.py
+
+# === DATA ===
+
+data-generate:
+	@echo "🏛️  Generating synthetic training data..."
+	$(PYTHON) scripts/generate-identity-data.py
+	$(PYTHON) data/synthetic/generate_reasoning_data.py
+	$(PYTHON) data/synthetic/generate_ethical_data.py
+
+# === DEPLOYMENT ===
+
+deploy:
+	@echo "🏛️  Deploying Cathedral-LLM..."
+	@bash scripts/deploy-model.sh
+
+release:
+	@echo "🏛️  Creating release..."
+	$(CARGO) build --workspace --release
+	@bash scripts/package-release.sh
+
+# === UTILITIES ===
+
+clean:
+	@echo "🏛️  Cleaning build artifacts..."
+	$(CARGO) clean
+	@rm -rf target/
+	@find . -name "*.rs.bk" -delete
+
+install:
+	@echo "🏛️  Installing Cathedral-LLM CLI..."
+	$(CARGO) install --path crates/cathedral-cli
+
+update:
+	@echo "🏛️  Updating dependencies..."
+	$(CARGO) update
+
+verify-zk:
+	@echo "🏛️  Verifying ZK proofs..."
+	$(PYTHON) scripts/verify-zk-proofs.py
+
+# === HELP ===
+
+help:
+	@echo "🏛️  Cathedral-LLM — Available targets:"
 	@echo ""
-	@echo "  955.1  lattice_crypto.py     — Kyber-768 + Dilithium-3"
-	@echo "  954.1  axiarchy_lattice.lean — Formalização Lean 4"
-	@echo "  972.2  mesh_passport.py      — Mesh PQ + Consenso"
-	@echo "  989.x  mesh_passport.py      — Passport Gateway PQ"
-	@echo "  951    cognitive_operators.py — LLL Dream Organizer"
-	@echo "  952    cognitive_operators.py — BKZ Deep Attention"
-	@echo "  953    cognitive_operators.py — NTT Perception"
-	@echo "  1018   orchestrator.py       — Orquestrador Integrado"
+	@echo "  Build:"
+	@echo "    build, build-release, build-core, build-runtime, build-api, build-cli"
+	@echo ""
+	@echo "  Test:"
+	@echo "    test, test-core, test-runtime, test-e2e, test-zk, test-identity"
+	@echo ""
+	@echo "  Lint:"
+	@echo "    lint, fmt, check, deny"
+	@echo ""
+	@echo "  Docs:"
+	@echo "    docs, docs-private"
+	@echo ""
+	@echo "  Benchmarks:"
+	@echo "    bench, bench-inference, bench-zk"
+	@echo ""
+	@echo "  Development:"
+	@echo "    dev, setup, bootstrap"
+	@echo ""
+	@echo "  Docker:"
+	@echo "    docker-build, docker-run, docker-stop"
+	@echo ""
+	@echo "  Models:"
+	@echo "    model-download, model-convert, model-quantize"
+	@echo ""
+	@echo "  Data:"
+	@echo "    data-generate"
+	@echo ""
+	@echo "  Deployment:"
+	@echo "    deploy, release"
+	@echo ""
+	@echo "  Utilities:"
+	@echo "    clean, install, update, verify-zk, help"

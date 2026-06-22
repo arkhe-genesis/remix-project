@@ -10,8 +10,19 @@ members = [
     "cathedral-agent",
     "cathedral/bridge",
     "cathedral/sdk-rs",
-    "benches"
-, "common"]
+    "benches",
+    "common",
+    "cathedral-xtask"
+]
+resolver = "2"
 
 [workspace.dependencies]
+cargo-insta = "1.40"
+cargo-llvm-cov = "0.5"
+cargo-deadlinks = "0.9"
+cargo-sbom = "0.4"
+clap = { version = "4.5", features = ["derive"] }
+colored = "2.1"
+which = "6.0"
+anyhow = "1.0"
 aegis-plausible-reasoner = { path = "aegis-plausible-reasoner" }

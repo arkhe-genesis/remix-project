@@ -32,6 +32,7 @@ members = [
     "crates/cathedral-server",
     "crates/cathedral-remix-bridge",
     "crates/cathedral-core",
+    "crates/cathedral-tailscale",
 ]
 
 [workspace.dependencies]

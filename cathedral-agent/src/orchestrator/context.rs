@@ -360,6 +360,12 @@ pub struct ContextManager {
     contexts: Arc<RwLock<Vec<Arc<Context>>>>,
 }
 
+impl Default for ContextManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ContextManager {
     pub fn new() -> Self {
         Self {

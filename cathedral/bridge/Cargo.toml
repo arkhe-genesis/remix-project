@@ -16,6 +16,8 @@ blake3 = "1.5"
 common = { path = "../../common" }
 cathedral-sdk-rs = { path = "../sdk-rs" }
 tracing-subscriber = "0.3.23"
+ed25519-dalek = "2.2.0"
+fips204 = { version = "0.4.6", features = ["ml-dsa-65"] }
 
 [build-dependencies]
 tonic-build = "0.12"

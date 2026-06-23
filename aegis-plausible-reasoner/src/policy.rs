@@ -15,8 +15,10 @@ pub enum Condition {
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
+#[derive(Default)]
 pub enum PolicyAction {
     Prove,
+    #[default]
     Skip,
     ProveAndVerifyOnChain,
     EmergencyHalt,
@@ -24,11 +26,6 @@ pub enum PolicyAction {
     AdjustThreshold { field: String, value: f32 },
 }
 
-impl Default for PolicyAction {
-    fn default() -> Self {
-        PolicyAction::Skip
-    }
-}
 
 #[derive(Debug, Clone, Serialize, Deserialize, PartialEq)]
 pub struct PolicyRule {

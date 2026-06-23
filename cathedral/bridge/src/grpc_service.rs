@@ -9,9 +9,6 @@ use cathedral_v1::{
 };
 use tonic::{Request, Response, Status};
 
-use ed25519_dalek::{VerifyingKey as Ed25519VerifyingKey, Verifier as _};
-use fips204::ml_dsa_65::{PublicKey as MlDsa65PublicKey};
-use fips204::traits::{SerDes, Verifier as _};
 use cathedral_v1::SignatureAlgorithm;
 
 
@@ -27,7 +24,7 @@ async fn ingest(
         let req = request.into_inner();
         let events_count = req.events.len() as u32;
 
-        if let (Some(batch_hash), Some(sig), Some(sig_alg)) = (&req.batch_hash, &req.agent_signature, req.signature_algorithm) {
+        if let (Some(_batch_hash), Some(_sig), Some(sig_alg)) = (&req.batch_hash, &req.agent_signature, req.signature_algorithm) {
             match SignatureAlgorithm::try_from(sig_alg) {
                 Ok(SignatureAlgorithm::Ed25519) => {
                     // Logic to retrieve agent's Ed25519 public key.

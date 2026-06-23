@@ -19,6 +19,7 @@ pqcrypto-dilithium = "0.3.1"
 pqcrypto-traits = "0.3"
 rand = "0.8"
 common = { path = "../../common" }
+blake3 = "1.8.5"
 
 [build-dependencies]
 tonic-build = "0.12"

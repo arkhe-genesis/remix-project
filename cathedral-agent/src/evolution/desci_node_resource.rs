@@ -1,4 +1,4 @@
-use crate::evolution::resource::{Resource, ResourceMetadata, ResourceInterface, ResourceState, ProvenanceEntry};
+use crate::evolution::resource::{Resource, ResourceMetadata, ResourceInterface, ResourceState};
 use serde::{Serialize, Deserialize};
 use std::collections::HashMap;
 use chrono::Utc;

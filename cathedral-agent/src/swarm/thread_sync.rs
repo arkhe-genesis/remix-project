@@ -4,6 +4,12 @@ use tracing::info;
 
 pub struct ThreadSyncManager {}
 
+impl Default for ThreadSyncManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl ThreadSyncManager {
     pub fn new() -> Self {
         Self {}

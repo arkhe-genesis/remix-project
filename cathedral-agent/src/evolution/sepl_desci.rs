@@ -1,6 +1,4 @@
-use crate::evolution::desci_node_resource::{DeSciNodeResource, NodeStatus, ResearchComponent, ComponentType};
-use crate::evolution::resource::Resource;
-use std::collections::HashMap;
+use crate::evolution::desci_node_resource::DeSciNodeResource;
 
 // A simplified implementation of the SEPL traits for compilation
 #[derive(Debug, Clone)]
@@ -36,6 +34,12 @@ pub enum DeSciConstraint {
 
 pub struct DeSciEvolutionOperator {
     // simplified for compilation
+}
+
+impl Default for DeSciEvolutionOperator {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl DeSciEvolutionOperator {

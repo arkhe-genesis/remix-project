@@ -9,6 +9,12 @@ pub struct SkillRegistry {
     // resolver: NostrReferenceResolver,  // In a real implementation we would have Nostr integration
 }
 
+impl Default for SkillRegistry {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SkillRegistry {
     pub fn new() -> Self {
         Self {

@@ -1,12 +1,14 @@
 use axum::{
+    Json, Router,
     extract::{Path, Query, State},
     routing::{get, post},
-    Json, Router,
+};
+use cathedral_inference_runtime::{
+    CathedralRuntime, models::GenerateRequest, models::VerificationLevel,
 };
 use serde::{Deserialize, Serialize};
-use std::sync::Arc;
 use std::str::FromStr;
-use cathedral_inference_runtime::{CathedralRuntime, models::GenerateRequest, models::VerificationLevel};
+use std::sync::Arc;
 
 #[derive(Deserialize)]
 pub struct ApiRequest {

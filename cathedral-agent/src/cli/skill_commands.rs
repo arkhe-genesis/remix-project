@@ -14,7 +14,7 @@ pub enum SkillCommand {
 
 impl SkillCommand {
     pub fn parse(input: &str) -> Option<Self> {
-        let parts: Vec<&str> = input.trim().split_whitespace().collect();
+        let parts: Vec<&str> = input.split_whitespace().collect();
         if parts.is_empty() { return None; }
 
         match parts[0] {

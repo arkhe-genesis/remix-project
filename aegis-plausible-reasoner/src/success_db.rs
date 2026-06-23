@@ -21,6 +21,12 @@ pub struct SuccessDatabase {
     // For fast similarity search (simplified: linear scan)
 }
 
+impl Default for SuccessDatabase {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SuccessDatabase {
     pub fn new() -> Self {
         Self { records: Vec::new() }

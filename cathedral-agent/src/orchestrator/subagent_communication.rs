@@ -138,6 +138,12 @@ pub struct MessageSubscription {
     pub callback: Arc<dyn Fn(MessageEnvelope) + Send + Sync>,
 }
 
+impl Default for MessageBroker {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl MessageBroker {
     pub fn new() -> Self {
         Self {

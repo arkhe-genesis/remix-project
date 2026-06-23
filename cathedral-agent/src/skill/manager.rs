@@ -7,6 +7,12 @@ pub struct SkillManager {
     executions: Vec<SkillExecution>,
 }
 
+impl Default for SkillManager {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SkillManager {
     pub fn new() -> Self {
         Self {

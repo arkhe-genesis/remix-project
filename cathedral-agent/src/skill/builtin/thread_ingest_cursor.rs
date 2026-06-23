@@ -35,6 +35,12 @@ pub fn thread_ingest_cursor_skill() -> Skill {
 
 pub struct CursorIngestExecutor {}
 
+impl Default for CursorIngestExecutor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl CursorIngestExecutor {
     pub fn new() -> Self {
         Self {}
@@ -69,7 +75,7 @@ fn parse_cursor_file(json: &Value, project: Option<&str>) -> Result<Option<Threa
     let mut created_at = chrono::Utc::now().timestamp() as u64;
 
     if let Some(convs) = json.get("conversations").and_then(|v| v.as_object()) {
-        for (id, conv) in convs {
+        if let Some((id, conv)) = convs.into_iter().next() {
             source_id = id.clone();
             if let Some(msgs) = conv.get("messages").and_then(|v| v.as_array()) {
                 for msg in msgs {
@@ -83,7 +89,7 @@ fn parse_cursor_file(json: &Value, project: Option<&str>) -> Result<Option<Threa
             if let Some(ts) = conv.get("created_at").and_then(|v| v.as_u64()) {
                 created_at = ts;
             }
-            break;
+
         }
     }
 

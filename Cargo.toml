@@ -29,6 +29,9 @@ members = [
     "crates/cathedral-cli",
     "crates/cathedral-benchmarks",
     "crates/cathedral-tests",
+    "crates/cathedral-server",
+    "crates/cathedral-remix-bridge",
+    "crates/cathedral-core",
 ]
 
 [workspace.dependencies]

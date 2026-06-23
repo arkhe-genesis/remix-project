@@ -13,6 +13,12 @@ pub struct Planner {
     plausible_reasoner: PlausibleReasoner,
 }
 
+impl Default for Planner {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Planner {
     pub fn new() -> Self {
         Self {

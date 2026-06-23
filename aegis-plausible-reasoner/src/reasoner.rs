@@ -9,6 +9,12 @@ pub struct PlausibleReasoner {
     rng: rand::rngs::ThreadRng,
 }
 
+impl Default for PlausibleReasoner {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl PlausibleReasoner {
     pub fn new() -> Self {
         Self {

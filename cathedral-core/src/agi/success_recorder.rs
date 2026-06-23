@@ -5,6 +5,12 @@ pub struct SuccessRecorder {
     db: SuccessDatabase,
 }
 
+impl Default for SuccessRecorder {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl SuccessRecorder {
     pub fn new() -> Self {
         Self { db: SuccessDatabase::new() }

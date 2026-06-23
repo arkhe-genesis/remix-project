@@ -188,7 +188,7 @@ impl SecondSelfOrchestrator {
                     output.push_str(&format!("    Erro: {}\n", err));
                 }
             }
-            output.push_str("\n");
+            output.push('\n');
         }
 
         if let Some(url) = result.deploy_url {

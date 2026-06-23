@@ -1,6 +1,5 @@
-use serde_json;
 
-#[deny(clippy::all)]
+#![deny(clippy::all)]
 
 use napi::bindgen_prelude::*;
 use napi_derive::napi;

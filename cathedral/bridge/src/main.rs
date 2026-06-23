@@ -1,3 +1,4 @@
+#![allow(warnings)]
 mod grpc_service;
 mod signature_verifier;
 

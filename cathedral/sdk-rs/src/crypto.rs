@@ -18,7 +18,7 @@ impl SigningKeyWrapper {
                 let mut csprng = OsRng;
                 let mut bytes = [0u8; 32];
                 csprng.fill_bytes(&mut bytes);
-                Ok(Self::Ed25519(SigningKey::from_bytes(&bytes.into())))
+                Ok(Self::Ed25519(SigningKey::from_bytes(&bytes)))
             }
             SignatureAlgorithm::MlDsa => {
                 let (_, sk) = keypair();
@@ -60,7 +60,7 @@ impl SigningKeyWrapper {
             SignatureAlgorithm::Ed25519 => {
                 let arr: [u8; 32] = bytes.try_into()
                     .map_err(|_| anyhow!("Tamanho inválido para chave Ed25519"))?;
-                Ok(Self::Ed25519(SigningKey::from_bytes(&arr.into())))
+                Ok(Self::Ed25519(SigningKey::from_bytes(&arr)))
             }
             SignatureAlgorithm::MlDsa => {
                 let sk = SecretKey::from_bytes(bytes)

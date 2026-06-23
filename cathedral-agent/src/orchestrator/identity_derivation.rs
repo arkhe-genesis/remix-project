@@ -16,6 +16,7 @@ use crate::attestation::IdentityAttestation;
 type HmacSha512 = Hmac<Sha512>;
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
+#[derive(Default)]
 pub struct DerivationPath {
     pub segments: Vec<String>,
 }
@@ -44,11 +45,6 @@ impl DerivationPath {
     }
 }
 
-impl Default for DerivationPath {
-    fn default() -> Self {
-        Self { segments: vec![] }
-    }
-}
 
 // ============================================================================
 // 2. Derivação HMAC-SHA512
@@ -149,14 +145,14 @@ impl DerivedKey {
             biometric_score: 1.0,
             coercion_score: 0.0,
             blockchain_signature_id: None,
-            hardware_fingerprint: Some(hex::encode(&self.public_key)),
+            hardware_fingerprint: Some(hex::encode(self.public_key)),
             confidence: 0.95,
             signature: None,
             signer_key_id: format!("derived:{}", purpose),
             metadata: serde_json::json!({
                 "derivation_path": purpose,
                 "depth": self.depth,
-                "public_key": hex::encode(&self.public_key),
+                "public_key": hex::encode(self.public_key),
             }),
         }
     }

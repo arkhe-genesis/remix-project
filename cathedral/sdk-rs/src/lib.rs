@@ -1,6 +1,8 @@
+#![allow(warnings)]
 pub mod crypto;
 pub mod grpc_client;
 
+use common::crypto_config::SignatureAlgorithm;
 use anyhow::Result;
 use serde_json::Value;
 
@@ -109,16 +111,16 @@ impl CathedralSdk {
             hasher.finalize().as_bytes().to_vec()
         };
 
-        let (agent_signature, signature_algorithm) = match &self.key {
-            Some(AgentKey::Ed25519(sk)) => {
-                let sig = sk.sign(&batch_hash);
-                (Some(sig.to_bytes().to_vec()), Some(SignatureAlgorithm::Ed25519 as i32))
+        let (agent_signature, signature_algorithm) = match &self.signing_key {
+            SigningKeyWrapper::Ed25519(_sk) => {
+                let sig = self.factory.sign(&self.signing_key, &batch_hash).unwrap();
+                (Some(sig.to_vec()), Some(SignatureAlgorithm::Ed25519 as i32))
             },
-            Some(AgentKey::MlDsa65(sk)) => {
-                let sig = sk.try_sign(&batch_hash, &[]).map_err(|e| anyhow::anyhow!("ML-DSA signing failed: {}", e))?; // Sign empty context for now
-                (Some(sig.to_vec()), Some(SignatureAlgorithm::MlDsa65 as i32))
+            SigningKeyWrapper::MlDsa(_sk) => {
+                let sig = self.factory.sign(&self.signing_key, &batch_hash).unwrap(); // Sign empty context for now
+                (Some(sig.to_vec()), Some(SignatureAlgorithm::MlDsa as i32))
             },
-            None => (None, None),
+
         };
 
         let request = IngestRequest {

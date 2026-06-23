@@ -1,6 +1,6 @@
-use serde::Serialize;
-use cathedral_zk::ZKProof;
 use cathedral_wormgraph::ExecutionReceipt;
+use cathedral_zk::ZKProof;
+use serde::Serialize;
 use std::str::FromStr;
 
 /// Níveis de verificação suportados pelo protótipo.
@@ -50,7 +50,7 @@ impl VerificationLevel {
 pub struct GenerateRequest {
     pub prompt: String,
     pub did: String,
-    pub signature: Vec<u8>,      // Assinatura da requisição (Ed25519)
+    pub signature: Vec<u8>, // Assinatura da requisição (Ed25519)
     pub level: VerificationLevel,
     pub context: Option<Vec<String>>,
 }
@@ -61,8 +61,8 @@ pub struct GenerateResponse {
     pub text: String,
     pub thinking: Option<String>,
     pub zk_proof: Option<ZKProof>,
-    pub signature: Vec<u8>,        // Assinatura da resposta
-    pub attestation: Vec<u8>,      // Header PqcAttestation (0xF8)
+    pub signature: Vec<u8>,   // Assinatura da resposta
+    pub attestation: Vec<u8>, // Header PqcAttestation (0xF8)
     pub receipt: ExecutionReceipt,
     pub latency_ms: u64,
     pub reputation: f64,

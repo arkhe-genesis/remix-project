@@ -1,6 +1,6 @@
-use cathedral_inference_runtime::models::{GenerateRequest, VerificationLevel};
-use cathedral_inference_runtime::CathedralRuntime;
 use cathedral_identity::SignatureGuard;
+use cathedral_inference_runtime::CathedralRuntime;
+use cathedral_inference_runtime::models::{GenerateRequest, VerificationLevel};
 
 #[tokio::test]
 async fn test_e2e_l0() {

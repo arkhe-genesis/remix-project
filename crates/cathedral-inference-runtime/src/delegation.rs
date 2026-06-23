@@ -2,7 +2,7 @@ use cathedral_llm_core::ModelTier;
 
 /// Router de delegação que seleciona o tier do modelo baseado na reputação.
 pub struct DelegationRouter {
-    thresholds: Vec<f64>,          // [90, 70, 50] -> Pro, Plus, Standard, Lite
+    thresholds: Vec<f64>, // [90, 70, 50] -> Pro, Plus, Standard, Lite
     tiers: Vec<ModelTier>,
 }
 

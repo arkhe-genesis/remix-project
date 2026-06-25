@@ -1,18 +1,26 @@
-1. **Add `ethers` and `tokio` dependency to `cathedral-blockchain/Cargo.toml`.**
-   Since the target files reference `ethers` (which relies on `tokio` for async), I will add `ethers = "2.0"` (or similar depending on workspace versions, I will check what's installed or use dummy mock types for `ethers` types to avoid adding heavy deps if the actual `ethers-rs` introduces the conflict described in memory. Memory says "combining ethers, solana-sdk... causes severe dependency conflicts". I will use mock types and functions in `cathedral-blockchain/src/substrato_4004/ethers_mock.rs` if `ethers` doesn't work, OR I can just stub the structures out in a shared `mocks.rs` file within the module. Let me look at how `solana-sdk` is handled. It seems `ethers` is not in the `cathedral-blockchain/Cargo.toml` right now. I will create a dummy `ethers` module to bypass the cargo conflicts entirely.)
-
-2. **In `cathedral-blockchain/src/substrato_4004`, refine code to compile by including stub dependencies or removing complex external usages.**
-   Specifically, I will modify `b20_mapper.rs`, `policy_adapter.rs`, `compliance_engine.rs`, `settlement_engine.rs`, `memo_tracer.rs`, `cross_chain_bridge.rs` and `mod.rs`. I will provide a local `mock.rs` in `substrato_4004` that defines `ethers` dummy types (`Address`, `U256`, `Bytes`, `Contract`, `Provider`, `Http`), `Action`, `EventStore`, `EthicalFilter`, `CrossChainEmitterV2`, `HybridZkVerifier`, etc. I'll import these stubs into the files.
-
-3. **In `cathedral-blockchain/src/lib.rs` include `pub mod substrato_4004;`.**
-   Add this at the bottom or top of the file to wire up the new module.
-   Verify it with `cargo check -p cathedral-blockchain`.
-
-4. **Update `dashboard-b20.yml` and `tests/b20_integration_tests.rs`.**
-   I will write a stub implementation for `dashboard-b20.yml` and update `tests/b20_integration_tests.rs` with mock objects so that `cargo test -p cathedral-blockchain` actually passes.
-
-5. **Complete pre commit steps to ensure proper testing, verification, review, and reflection are done.**
-   Run `pre_commit_instructions` tool and complete all listed checks.
-
-6. **Verify Compilation and Tests.**
-   Run `cargo test -p cathedral-blockchain` to ensure the new integrations function correctly.
+1. **Create formal specifications and workflows**:
+   - Write file `specs/squidbleed_detection.tla` containing the TLA+ specification for squidbleed detection.
+   - Write file `.github/workflows/tla-check.yml` with the apalache github action check.
+   - Write file `.github/workflows/kani-proofs.yml` with the kani proof action check.
+   - Run `ls -la specs/` and `ls -la .github/workflows/` to verify file creations.
+2. **Create documentation**:
+   - Write file `CONSTITUTION.md` with the constitution content.
+   - Write file `ORCHIDEAS.md` with the orchideas content.
+   - Verify by running `ls -la` in root.
+3. **Setup auxiliary crates**:
+   - Create `Cargo.toml` and `src/lib.rs` for `crates/arkhe-core`, `crates/arkhe-agents`, `crates/arkhe-llm`, `crates/arkhe-metacognition`, `crates/arkhe-bridge` using `write_file`.
+   - Add `crates/arkhe-core/src/string_safe.rs` with safe string and kani proofs.
+   - Verify creation by `ls -la` and tree commands in those folders.
+4. **Implement `arkhe-security-audit` crate**:
+   - Write `crates/arkhe-security-audit/Cargo.toml`.
+   - Write `crates/arkhe-security-audit/src/lib.rs`.
+   - Write `crates/arkhe-security-audit/src/types.rs`.
+   - Write `crates/arkhe-security-audit/src/hunt/mod.rs` and other phases stub files.
+   - Verify by `ls -R crates/arkhe-security-audit` and running `cargo check -p arkhe-security-audit`.
+5. **Update root `Cargo.toml`**:
+   - Add new crates to workspace members in `Cargo.toml` using `replace_with_git_merge_diff`.
+   - Run `cargo metadata --format-version 1 | grep arkhe-security-audit` and `cargo check` to verify workspace resolution.
+6. **Pre-commit and verification**:
+   - Run `cargo test` across the workspace to ensure tests pass.
+   - Complete pre-commit steps to ensure proper testing, verification, review, and reflection are done.
+7. **Submit changes**.

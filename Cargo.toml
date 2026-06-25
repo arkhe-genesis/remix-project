@@ -34,6 +34,12 @@ members = [
     "crates/cathedral-remix-bridge",
     "crates/cathedral-core",
     "crates/cathedral-tailscale",
+    "crates/arkhe-core",
+    "crates/arkhe-agents",
+    "crates/arkhe-llm",
+    "crates/arkhe-metacognition",
+    "crates/arkhe-bridge",
+    "crates/arkhe-security-audit",
 ]
 
 [workspace.dependencies]

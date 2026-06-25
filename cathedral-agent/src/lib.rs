@@ -90,3 +90,4 @@ pub mod thread;
 pub mod evolution;
 pub mod hashtree;
 pub mod observability;
+pub mod rfq;

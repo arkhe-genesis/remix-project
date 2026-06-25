@@ -11,11 +11,12 @@ keywords = ["llm", "ai", "pqc", "zk", "identity", "agent"]
 categories = ["science", "cryptography", "network-programming"]
 
 [workspace]
-
-
+resolver = "3"
 
 members = [
     "crates/cathedral-resilience",
+    "crates/cathedral-taproot-bridge",
+    "cathedral-agent",
     "crates/cathedral-self-improve",
     "crates/cathedral-llm-core",
     "crates/cathedral-inference-runtime",

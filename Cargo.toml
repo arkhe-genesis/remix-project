@@ -1,133 +1,59 @@
-
-[workspace.package]
-version = "0.1.0"
-edition = "2021"
-authors = ["Cathedral ARKHE ORCHESTRATOR <orcid:0009-0005-2697-4668>"]
-license = "MIT OR Apache-2.0"
-repository = "https://github.com/cathedral-os/cathedral-llm"
-homepage = "https://cathedral-os.org"
-documentation = "https://docs.cathedral-os.org/cathedral-llm"
-keywords = ["llm", "ai", "pqc", "zk", "identity", "agent"]
-categories = ["science", "cryptography", "network-programming"]
-
 [workspace]
-resolver = "3"
-
+resolver = "2"
 members = [
-    "crates/cathedral-resilience",
-    "crates/cathedral-taproot-bridge",
-    "cathedral-agent",
-    "crates/cathedral-self-improve",
-    "crates/cathedral-llm-core",
-    "crates/cathedral-inference-runtime",
-    "crates/cathedral-identity",
-    "crates/cathedral-reputation",
-    "crates/cathedral-wormgraph",
-    "crates/cathedral-zk",
-    "crates/cathedral-arkheobex",
-    "crates/cathedral-observer",
-    "crates/cathedral-api",
-    "crates/cathedral-cli",
-    "crates/cathedral-benchmarks",
-    "crates/cathedral-tests",
-    "crates/cathedral-server",
-    "crates/cathedral-remix-bridge",
-    "crates/cathedral-core",
-    "crates/cathedral-tailscale",
-    "crates/arkhe-core",
-    "crates/arkhe-agents",
-    "crates/arkhe-llm",
-    "crates/arkhe-metacognition",
-    "crates/arkhe-bridge",
-    "crates/arkhe-security-audit",
+    "crates/safe-core-core",
+    "crates/safe-core-crypto",
+    "crates/safe-core-policy",
+    "crates/safe-core-mcp",
+    "crates/safe-core-a2a",
+    "crates/safe-core-parallax-bridge",
+    "crates/safe-core-model-runtime",
 ]
 
-[workspace.dependencies]
-# Async runtime
-tokio = { version = "1.44", features = ["full", "tracing"] }
-tokio-util = "0.7"
+[workspace.package]
+version = "3.0.0"
+edition = "2021"
+authors = ["Arkhe Research Group <research@arkhe-os.org>"]
+license = "MIT OR Apache-2.0"
+rust-version = "1.85.0"
 
-# Serialization
+[workspace.dependencies]
 serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
-toml = "0.8"
-bincode = "1.3"
-
-# HTTP/gRPC
-axum = "0.8"
-tower = "0.5"
-tower-http = "0.6"
-tonic = "0.13"
-hyper = "1.6"
-
-# WebSocket
-tokio-tungstenite = "0.26"
-
-# Database / Cache
-dashmap = "6.1"
-redis = { version = "0.29", features = ["tokio-comp"] }
-
-# Cryptography (PQC)
-ml-dsa = "0.1.1"
-ml-kem = "0.1.1"
-slh-dsa = "0.1.0"
-ed25519-dalek = "2.1"
-sha3 = "0.10"
-blake3 = "1.8"
-
-# ZK Proofs
-risc0-zkvm = "2.0"
-risc0-build = "2.0"
-
-# Metrics / Observability
-tracing = "0.1"
-tracing-subscriber = { version = "0.3", features = ["env-filter", "json"] }
-prometheus = "0.14"
-opentelemetry = "0.29"
-
-# Error handling
-thiserror = "2.0"
+thiserror = "1.0"
 anyhow = "1.0"
-
-# Testing
-tokio-test = "0.4"
-mockall = "0.13"
-criterion = { version = "0.5", features = ["async_tokio"] }
-
-# CLI
-clap = { version = "4.5", features = ["derive"] }
-indicatif = "0.17"
-console = "0.15"
-
-# Utilities
-uuid = { version = "1.16", features = ["v4", "serde"] }
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+tokio = { version = "1.43", features = ["full"] }
+async-trait = "0.1"
+blake3 = "1.5"
+ed25519-dalek = { version = "2.1", features = ["rand_core", "zeroize"] }
+zeroize = { version = "1.8", features = ["derive"] }
+rand_core = { version = "0.6", features = ["getrandom"] }
 chrono = { version = "0.4", features = ["serde"] }
-regex = "1.11"
-once_cell = "1.21"
+uuid = { version = "1.12", features = ["v4", "serde"] }
 hex = "0.4"
-dirs = "5.0"
+reqwest = { version = "0.12", features = ["json", "rustls-tls"] }
+rmcp = { version = "0.1.4", features = ["server", "transport-io"] }
 
-# LLM / ML (placeholder)
-candle-core = "0.10"
-candle-nn = "0.10"
-candle-transformers = "0.10"
-
-[workspace.metadata.cathedral]
-model-tiers = ["pro", "plus", "standard", "lite"]
-verification-levels = ["none", "light", "standard", "full"]
-default-verification = "light"
+safe-core-core = { path = "crates/safe-core-core" }
+safe-core-crypto = { path = "crates/safe-core-crypto" }
+safe-core-policy = { path = "crates/safe-core-policy" }
+safe-core-mcp = { path = "crates/safe-core-mcp" }
+safe-core-a2a = { path = "crates/safe-core-a2a" }
+safe-core-parallax-bridge = { path = "crates/safe-core-parallax-bridge" }
+safe-core-model-runtime = { path = "crates/safe-core-model-runtime" }
 
 [profile.release]
 opt-level = 3
-lto = "thin"
+lto = true
 codegen-units = 1
-panic = "abort"
 strip = true
 
-[profile.dev]
-opt-level = 0
-debug = true
+[workspace.lints.rust]
+unsafe_code = "forbid"
 
-[profile.bench]
-inherits = "release"
-debug = true
+[workspace.lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"

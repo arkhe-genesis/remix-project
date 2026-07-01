@@ -8,6 +8,10 @@ members = [
     "crates/safe-core-a2a",
     "crates/safe-core-parallax-bridge",
     "crates/safe-core-model-runtime",
+    "crates/arkhe-invariants",
+    "crates/asi-governance",
+    "crates/arkhe-causal",
+    "crates/arkhe-desci",
 ]
 
 [workspace.package]

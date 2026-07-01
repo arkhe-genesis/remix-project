@@ -1,0 +1,37 @@
+[package]
+name = "arkhe-desci"
+version = "11.0.0"
+edition = "2021"
+authors = ["ARKHE Team <team@arkhe.io>"]
+license = "MIT OR Apache-2.0"
+description = "Integração ARKHE × DeSciOS — governança, guardrails e rastreabilidade"
+
+[dependencies]
+arkhe-core = { path = "../arkhe-core" }
+arkhe-invariants = { path = "../arkhe-invariants" }
+asi-governance = { path = "../asi-governance" }
+arkhe-causal = { path = "../arkhe-causal" }
+
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+serde_yaml = "0.9"
+thiserror = "1"
+anyhow = "1"
+tracing = "0.1"
+chrono = { version = "0.4", features = ["serde"] }
+blake3 = "1"
+tokio = { version = "1", features = ["full"] }
+async-trait = "0.1"
+regex = "1"
+url = "2"
+uuid = { version = "1", features = ["v4"] }
+reqwest = { version = "0.12", features = ["multipart", "json"] }
+
+[features]
+default = []
+ipfs = []
+
+
+
+[dev-dependencies]
+tempfile = "3"

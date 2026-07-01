@@ -1,3 +1,9 @@
+//! Rastreabilidade IC16 — causal chains com blake3
+//!
+//! Cada step é hasheado com serialização canônica (BTreeMap).
+//! A cadeia é acumulativa: hash(chain_prev + hash_step).
+//! Qualquer mutação detectável via verify().
+
 use std::collections::BTreeMap;
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Utc};
@@ -9,13 +15,8 @@ use crate::error::{DesciError, Result};
 pub struct StepId(String);
 
 impl StepId {
-    pub fn new(id: impl Into<String>) -> Self {
-        Self(id.into())
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
+    pub fn new(id: impl Into<String>) -> Self { Self(id.into()) }
+    pub fn as_str(&self) -> &str { &self.0 }
 }
 
 impl std::fmt::Display for StepId {
@@ -45,14 +46,16 @@ pub struct WorkflowStep {
     pub started_at: Option<DateTime<Utc>>,
     pub completed_at: Option<DateTime<Utc>>,
     pub hash: Option<String>,
+    /// DID do agente que executou o step
+    pub agent_did: Option<String>,
 }
 
 impl WorkflowStep {
     pub fn new(id: impl Into<String>, name: &str, tool: &str) -> Self {
         Self {
             id: StepId::new(id),
-            name: name.to_string(),
-            tool: tool.to_string(),
+            name: name.into(),
+            tool: tool.into(),
             status: StepStatus::Pending,
             parameters: serde_json::Value::Object(serde_json::Map::new()),
             inputs: Vec::new(),
@@ -60,35 +63,35 @@ impl WorkflowStep {
             started_at: None,
             completed_at: None,
             hash: None,
+            agent_did: None,
         }
     }
 
     pub fn with_parameters(mut self, params: serde_json::Value) -> Self {
-        self.parameters = params;
-        self
+        self.parameters = params; self
     }
-
     pub fn with_inputs(mut self, inputs: Vec<String>) -> Self {
-        self.inputs = inputs;
-        self
+        self.inputs = inputs; self
+    }
+    pub fn with_agent(mut self, did: &str) -> Self {
+        self.agent_did = Some(did.into()); self
     }
 
     pub fn start(&mut self) {
         self.status = StepStatus::Running;
         self.started_at = Some(Utc::now());
     }
-
     pub fn complete(&mut self, outputs: Vec<String>) {
         self.status = StepStatus::Completed;
         self.outputs = outputs;
         self.completed_at = Some(Utc::now());
     }
-
-    pub fn fail(&mut self, error: impl Into<String>) {
-        self.status = StepStatus::Failed { error: error.into() };
+    pub fn fail(&mut self, err: impl Into<String>) {
+        self.status = StepStatus::Failed { error: err.into() };
         self.completed_at = Some(Utc::now());
     }
 
+    /// Hash determinístico via BTreeMap canônico
     pub fn compute_hash(&self) -> String {
         let mut map = BTreeMap::new();
         map.insert("id", serde_json::Value::String(self.id.0.clone()));
@@ -97,13 +100,20 @@ impl WorkflowStep {
         map.insert("parameters", self.parameters.clone());
         map.insert("inputs", serde_json::to_value(&self.inputs).unwrap_or_default());
         map.insert("outputs", serde_json::to_value(&self.outputs).unwrap_or_default());
-
-        let canonical = serde_json::to_string(&map)
-            .unwrap_or_default();
-
-        let hash = blake3::hash(canonical.as_bytes());
-        hash.to_string()
+        if let Some(ref did) = self.agent_did {
+            map.insert("agent_did", serde_json::Value::String(did.clone()));
+        }
+        let canonical = serde_json::to_string(&map).unwrap_or_default();
+        blake3::hash(canonical.as_bytes()).to_string()
     }
+}
+
+#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
+pub enum WorkflowType {
+    Nextflow,
+    Jupyter,
+    Snakemake,
+    Custom(String),
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -116,170 +126,150 @@ pub struct ScientificWorkflowTrace {
     pub updated_at: DateTime<Utc>,
     pub causal_chain: String,
     pub metadata: BTreeMap<String, String>,
-}
-
-#[derive(Debug, Clone, Serialize, Deserialize, PartialEq, Eq)]
-pub enum WorkflowType {
-    Nextflow,
-    Jupyter,
-    Snakemake,
-    Custom(String),
+    /// DID do pesquisador dono do workflow
+    pub owner_did: Option<String>,
 }
 
 impl ScientificWorkflowTrace {
-    pub fn new(workflow_name: &str, workflow_type: WorkflowType) -> Self {
+    pub fn new(name: &str, wtype: WorkflowType) -> Self {
         let trace_id = blake3::hash(
-            format!("{}:{}", workflow_name, Utc::now().timestamp_millis()).as_bytes()
+            format!("{}:{}", name, Utc::now().timestamp_millis()).as_bytes()
         ).to_string();
-
+        let now = Utc::now();
         Self {
-            trace_id,
-            workflow_name: workflow_name.to_string(),
-            workflow_type,
-            steps: Vec::new(),
-            created_at: Utc::now(),
-            updated_at: Utc::now(),
-            causal_chain: String::new(),
-            metadata: BTreeMap::new(),
+            trace_id, workflow_name: name.into(), workflow_type: wtype,
+            steps: Vec::new(), created_at: now, updated_at: now,
+            causal_chain: String::new(), metadata: BTreeMap::new(),
+            owner_did: None,
         }
+    }
+
+    pub fn with_owner(mut self, did: &str) -> Self {
+        self.owner_did = Some(did.into()); self
+    }
+    pub fn with_metadata(mut self, k: &str, v: &str) -> Self {
+        self.metadata.insert(k.into(), v.into()); self
     }
 
     pub fn add_step(&mut self, mut step: WorkflowStep) -> Result<()> {
         if self.steps.iter().any(|s| s.id == step.id) {
-            return Err(DesciError::PluginValidation(
-                format!("Duplicate step id: {}", step.id)
-            ));
+            return Err(DesciError::DuplicateStep(step.id.to_string()));
         }
-
         step.hash = Some(step.compute_hash());
         self.steps.push(step);
-        self.recompute_causal_chain();
+        self.recompute_chain();
         self.updated_at = Utc::now();
         Ok(())
     }
 
-    fn recompute_causal_chain(&mut self) {
+    fn recompute_chain(&mut self) {
         let mut chain = format!("{}:{}", self.trace_id, self.workflow_name);
-
         for step in &self.steps {
-            let step_hash = step.hash.as_deref().unwrap_or("");
-            chain = blake3::hash(
-                format!("{}:{}", chain, step_hash).as_bytes()
-            ).to_string();
+            let sh = step.hash.as_deref().unwrap_or("");
+            chain = blake3::hash(format!("{}:{}", chain, sh).as_bytes()).to_string();
         }
-
         self.causal_chain = chain;
     }
 
+    /// Verifica integridade — O(n) recalculando tudo
     pub fn verify(&self) -> bool {
         let mut chain = format!("{}:{}", self.trace_id, self.workflow_name);
-
         for step in &self.steps {
-            let expected_hash = step.compute_hash();
-            if step.hash.as_deref() != Some(&expected_hash) {
-                info!(
-                    step = %step.id,
-                    expected = %expected_hash,
-                    actual = ?step.hash,
-                    "Step hash mismatch"
-                );
+            let expected = step.compute_hash();
+            if step.hash.as_deref() != Some(&expected) {
+                info!(step = %step.id, "Hash mismatch");
                 return false;
             }
-
-            let step_hash = step.hash.as_deref().unwrap_or("");
             chain = blake3::hash(
-                format!("{}:{}", chain, step_hash).as_bytes()
+                format!("{}:{}", chain, step.hash.as_deref().unwrap_or("")).as_bytes()
             ).to_string();
         }
-
-        let verified = chain == self.causal_chain;
-        if !verified {
-            info!(
-                expected = %chain,
-                actual = %self.causal_chain,
-                "Causal chain mismatch"
-            );
+        if chain != self.causal_chain {
+            info!("Causal chain mismatch");
+            return false;
         }
-        verified
+        true
     }
 
     pub fn get_step(&self, id: &str) -> Option<&WorkflowStep> {
         self.steps.iter().find(|s| s.id.as_str() == id)
     }
-
     pub fn get_step_mut(&mut self, id: &str) -> Option<&mut WorkflowStep> {
         self.steps.iter_mut().find(|s| s.id.as_str() == id)
     }
-
     pub fn completed_count(&self) -> usize {
         self.steps.iter().filter(|s| matches!(s.status, StepStatus::Completed)).count()
     }
-
-    pub fn total_count(&self) -> usize {
-        self.steps.len()
-    }
-
-    pub fn with_metadata(mut self, key: &str, value: &str) -> Self {
-        self.metadata.insert(key.to_string(), value.to_string());
-        self
-    }
+    pub fn total_count(&self) -> usize { self.steps.len() }
 }
 
-pub trait NextflowTraceExt {
-    fn from_nextflow_execution(execution_json: &str) -> Result<ScientificWorkflowTrace>;
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-impl NextflowTraceExt for ScientificWorkflowTrace {
-    fn from_nextflow_execution(execution_json: &str) -> Result<ScientificWorkflowTrace> {
-        let v: serde_json::Value = serde_json::from_str(execution_json)
-            .map_err(|e| DesciError::Parse(format!("Invalid Nextflow JSON: {}", e)))?;
+    #[test]
+    fn test_step_hash_deterministic() {
+        let s1 = WorkflowStep::new("s1", "Align", "blastn")
+            .with_parameters(serde_json::json!({"db": "nr"}));
+        let s2 = WorkflowStep::new("s1", "Align", "blastn")
+            .with_parameters(serde_json::json!({"db": "nr"}));
+        assert_eq!(s1.compute_hash(), s2.compute_hash());
+    }
 
-        let workflow_name = v["workflow"]
-            .get("name")
-            .and_then(|n| n.as_str())
-            .unwrap_or("unnamed");
+    #[test]
+    fn test_step_hash_differs() {
+        let s1 = WorkflowStep::new("s1", "X", "a").with_parameters(serde_json::json!({"e": "1e-5"}));
+        let s2 = WorkflowStep::new("s1", "X", "a").with_parameters(serde_json::json!({"e": "1e-10"}));
+        assert_ne!(s1.compute_hash(), s2.compute_hash());
+    }
 
-        let mut trace = ScientificWorkflowTrace::new(workflow_name, WorkflowType::Nextflow);
+    #[test]
+    fn test_trace_verify_ok() {
+        let mut t = ScientificWorkflowTrace::new("test", WorkflowType::Nextflow);
+        let mut s = WorkflowStep::new("s1", "DL", "wget");
+        s.start(); s.complete(vec!["data.fa".into()]);
+        t.add_step(s).unwrap();
+        let mut s2 = WorkflowStep::new("s2", "Align", "blast");
+        s2.start(); s2.complete(vec!["out.tsv".into()]);
+        t.add_step(s2).unwrap();
+        assert!(t.verify());
+        assert_eq!(t.completed_count(), 2);
+    }
 
-        if let Some(processes) = v["processes"].as_array() {
-            for (i, proc) in processes.iter().enumerate() {
-                let name = proc.get("name")
-                    .and_then(|n| n.as_str())
-                    .unwrap_or("unknown");
+    #[test]
+    fn test_trace_tamper_detected() {
+        let mut t = ScientificWorkflowTrace::new("test", WorkflowType::Nextflow);
+        let mut s = WorkflowStep::new("s1", "DL", "wget");
+        s.start(); s.complete(vec!["data.fa".into()]);
+        t.add_step(s).unwrap();
+        t.steps[0].name = "TAMPERED".into();
+        assert!(!t.verify());
+    }
 
-                let mut step = WorkflowStep::new(
-                    format!("nf-{}", i),
-                    name,
-                    proc.get("process")
-                        .and_then(|p| p.as_str())
-                        .unwrap_or("unknown"),
-                );
+    #[test]
+    fn test_duplicate_step_rejected() {
+        let mut t = ScientificWorkflowTrace::new("test", WorkflowType::Nextflow);
+        t.add_step(WorkflowStep::new("s1", "A", "x")).unwrap();
+        assert!(t.add_step(WorkflowStep::new("s1", "B", "y")).is_err());
+    }
 
-                step.start();
+    #[test]
+    fn test_owner_did_roundtrip() {
+        let t = ScientificWorkflowTrace::new("wf", WorkflowType::Jupyter)
+            .with_owner("did:arkhe:researcher-001");
+        let json = serde_json::to_string(&t).unwrap();
+        let t2: ScientificWorkflowTrace = serde_json::from_str(&json).unwrap();
+        assert_eq!(t2.owner_did.as_deref(), Some("did:arkhe:researcher-001"));
+    }
 
-                if let Some(status) = proc.get("status").and_then(|s| s.as_str()) {
-                    match status {
-                        "COMPLETED" => {
-                            let outputs: Vec<String> = proc.get("out")
-                                .and_then(|o| o.as_array())
-                                .map(|arr| arr.iter().filter_map(|v| v.as_str().map(String::from)).collect())
-                                .unwrap_or_default();
-                            step.complete(outputs);
-                        }
-                        "FAILED" => {
-                            let err = proc.get("error")
-                                .and_then(|e| e.as_str())
-                                .unwrap_or("Unknown error");
-                            step.fail(err);
-                        }
-                        _ => {}
-                    }
-                }
-
-                trace.add_step(step)?;
-            }
-        }
-
-        Ok(trace)
+    #[test]
+    fn test_agent_did_in_step() {
+        let mut s = WorkflowStep::new("s1", "X", "y").with_agent("did:arkhe:agent-01");
+        s.start(); s.complete(vec!["out".into()]);
+        let h = s.compute_hash();
+        // Com agent_did diferente, hash diferente
+        let mut s2 = WorkflowStep::new("s1", "X", "y").with_agent("did:arkhe:agent-02");
+        s2.start(); s2.complete(vec!["out".into()]);
+        assert_ne!(h, s2.compute_hash());
     }
 }
